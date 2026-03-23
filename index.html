@@ -571,8 +571,9 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Product No. *</label>
-              <input type="text" id="ai-no" placeholder="e.g. WA001" oninput="checkProductForAI()"/>
+              <label>Product No.(s) *</label>
+              <input type="text" id="ai-no" placeholder="e.g. WA001, WA004, WA010" oninput="checkProductForAI()"/>
+              <small style="color:var(--text-muted); font-size:11px;">For bulk, separate with commas in order of selected images.</small>
             </div>
           </div>
           
@@ -583,9 +584,9 @@
           <div class="form-group" style="margin-top: 10px;">
             <label>Transparent Image (PNG/WEBP)</ *</label>
             <label class="img-upload-area" for="ai-image" style="display: block;">
-              <input type="file" id="ai-image" accept="image/png, image/webp" onchange="previewImages(this, 'ai-preview')" onclick="event.stopPropagation(); this.value=null;"/>
+              <input type="file" id="ai-image" accept="image/png, image/webp" multiple onchange="previewImages(this, 'ai-preview'); checkProductForAI();" onclick="event.stopPropagation(); this.value=null;"/>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-              <p>Click to select Transparent Image (PNG/WEBP)</p>
+              <p>Click to select Transparent Images (PNG/WEBP)</p>
             </label>
             <div class="img-preview-wrap" id="ai-preview"></div>
             <div class="upload-progress" id="ai-progress" style="display:none;"><div class="upload-progress-bar" id="ai-progress-bar"></div></div>
@@ -1086,80 +1087,82 @@
 
   window.uploadAiImage = async function() {
     const btn = document.getElementById('aiUploadBtn');
-    const no = btn.dataset.realNo;
+    const nosStr = btn.dataset.realNos;
     const cat = document.getElementById('ai-category').value;
     const fileInput = document.getElementById('ai-image');
     
-    if (!no) {
-      toast('❌ Match a product first (check No. and Category).', true);
+    if (!nosStr || !fileInput.files.length) {
+      toast('❌ Match products and select files first.', true);
       return;
     }
-    if (!fileInput.files || !fileInput.files.length) {
-      toast('❌ No file selected. Please pick a transparent image.', true);
-      return; 
-    }
 
-    const file = fileInput.files[0];
-    if (!['image/png', 'image/webp'].includes(file.type)) {
-      toast('❌ Only PNG or WEBP allowed for transparent AI assets.', true);
+    const nosArr = nosStr.split(',');
+    if (nosArr.length !== fileInput.files.length) {
+      toast(`❌ File count (${fileInput.files.length}) doesn't match product count (${nosArr.length}).`, true);
       return;
     }
 
     btn.disabled = true; 
     const originalText = btn.textContent;
-    btn.textContent = '⏳ Uploading AI Asset...';
-
-    console.log("Starting AI upload for:", no, cat, file.name);
+    btn.textContent = '⏳ Bulk Uploading...';
+    document.getElementById('ai-progress').style.display = 'block';
 
     try {
-      document.getElementById('ai-progress').style.display = 'block';
-      document.getElementById('ai-progress-bar').style.width = '30%';
-      
-      const ext = file.name ? file.name.split('.').pop() : 'png';
-      const filePath = `transparent_${cat}/${no}.${ext}`;
-      
-      // 1. Storage Upload
-      const { data: storageData, error: uploadErr } = await db.storage.from('ai-images').upload(filePath, file, { cacheControl:'3600', upsert:true });
-      if (uploadErr) {
-        console.error("Storage upload failed:", uploadErr);
-        throw new Error("Storage: " + uploadErr.message);
+      for (let i = 0; i < nosArr.length; i++) {
+        const no = nosArr[i];
+        const file = fileInput.files[i];
+        
+        btn.textContent = `⏳ Uploading ${i+1}/${nosArr.length}...`;
+        const percent = Math.floor(((i) / nosArr.length) * 100);
+        document.getElementById('ai-progress-bar').style.width = percent + '%';
+
+        if (!['image/png', 'image/webp'].includes(file.type)) {
+           console.warn(`Skipping ${file.name}: invalid type.`);
+           continue;
+        }
+
+        const ext = file.name ? file.name.split('.').pop() : 'png';
+        const filePath = `transparent_${cat}/${no}.${ext}`;
+        
+        // 1. Storage Upload
+        const { error: uploadErr } = await db.storage.from('ai-images').upload(filePath, file, { cacheControl:'3600', upsert:true });
+        if (uploadErr) {
+          console.error(`Upload failed for ${no}:`, uploadErr);
+          continue;
+        }
+
+        const transparentUrl = db.storage.from('ai-images').getPublicUrl(filePath).data.publicUrl;
+
+        // 2. Table Upsert
+        const { error: dbErr } = await db.from('ai_assets').upsert({
+           product_no: no,
+           category: cat,
+           transparent_image_url: transparentUrl
+        }, { onConflict: 'product_no' });
+
+        if (dbErr) console.error(`DB Update failed for ${no}:`, dbErr);
       }
 
       document.getElementById('ai-progress-bar').style.width = '100%';
-      const transparentUrl = db.storage.from('ai-images').getPublicUrl(filePath).data.publicUrl;
-
-      // 2. Table Upsert
-      // We explicitly use 'onConflict: product_no' but it works best if product_no is unique or primary key
-      const { error: dbErr } = await db.from('ai_assets').upsert({
-         product_no: no,
-         category: cat,
-         transparent_image_url: transparentUrl
-      }, { onConflict: 'product_no' });
-      
-      if (dbErr) {
-         console.error("Database upsert failed:", dbErr);
-         throw new Error("Database Table: " + dbErr.message);
-      }
-
-      toast(`✅ AI image for ${no} uploaded!`);
+      toast(`✅ Successfully processed all AI uploads!`);
       
       // Reset form
       document.getElementById('ai-no').value = '';
       document.getElementById('ai-image').value = '';
       document.getElementById('ai-preview').innerHTML = '';
       document.getElementById('ai-product-preview').style.display = 'none';
-      delete btn.dataset.realNo;
+      delete btn.dataset.realNos;
 
     } catch (err) {
       console.error("AI Upload error:", err);
-      toast('❌ Failed: ' + err.message, true);
+      toast('❌ Error during bulk upload: ' + err.message, true);
     } finally {
       btn.textContent = originalText;
-      btn.disabled = true; // Stay disabled until next product match
+      btn.disabled = true; 
       setTimeout(() => { 
         document.getElementById('ai-progress').style.display = 'none'; 
         document.getElementById('ai-progress-bar').style.width = '0%'; 
-      }, 500);
+      }, 1000);
     }
   };
 
