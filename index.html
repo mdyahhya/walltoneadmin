@@ -1041,15 +1041,16 @@
   // AI ASSET LOGIC
   // ══════════════════════════════════════════════
   window.checkProductForAI = function() {
-    const rawNo = document.getElementById('ai-no').value.trim().toUpperCase();
+    const rawVal = document.getElementById('ai-no').value.trim();
     const cat = document.getElementById('ai-category').value;
     const preview = document.getElementById('ai-product-preview');
     const btn = document.getElementById('aiUploadBtn');
+    const fileCount = document.getElementById('ai-image').files.length;
 
-    if (!cat || !rawNo) {
+    if (!cat || !rawVal) {
       preview.style.display = 'none';
       btn.disabled = true;
-      delete btn.dataset.realNo;
+      delete btn.dataset.realNos;
       return;
     }
 
@@ -1059,29 +1060,51 @@
       return;
     }
 
-    const matchedProd = allProductsCache.find(p => {
-      if (p.category !== cat) return false;
-      const pNo = p.product_no.toUpperCase();
-      // Match exact, suffix match, or purely digits match 
-      return pNo === rawNo || pNo.endsWith(rawNo) || pNo.replace(/\D/g, '') === rawNo.replace(/\D/g, '');
+    // Handle single or comma separated values
+    const nosArr = rawVal.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length > 0);
+    const matchedProducts = [];
+    const missingNos = [];
+
+    nosArr.forEach(rawNo => {
+      const match = allProductsCache.find(p => {
+        if (p.category !== cat) return false;
+        const pNo = p.product_no.toUpperCase();
+        return pNo === rawNo || pNo.endsWith(rawNo) || pNo.replace(/\D/g, '') === rawNo.replace(/\D/g, '');
+      });
+      if (match) matchedProducts.push(match);
+      else missingNos.push(rawNo);
     });
-    
-    if (matchedProd) {
-      preview.innerHTML = `
-        <img src="${matchedProd.image_url}" style="width:60px;height:60px;border-radius:8px;object-fit:cover; border: 2px solid var(--green);">
-        <div>
-          <div style="font-weight:600;font-size:0.95rem;">${matchedProd.name} <span style="color:var(--green)">(${matchedProd.product_no})</span></div>
-          <div style="font-size:0.8rem;color:var(--text-muted);">Matches found! Click upload below to attach transparent overlay.</div>
-        </div>
-      `;
+
+    if (matchedProducts.length > 0) {
+      if (matchedProducts.length === 1 && nosArr.length === 1) {
+        const prod = matchedProducts[0];
+        preview.innerHTML = `
+          <img src="${prod.image_url}" style="width:60px;height:60px;border-radius:8px;object-fit:cover; border: 2px solid var(--green);">
+          <div>
+            <div style="font-weight:600;font-size:0.95rem;">${prod.name} <span style="color:var(--green)">(${prod.product_no})</span></div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Ready to upload!</div>
+          </div>
+        `;
+      } else {
+        preview.innerHTML = `
+          <div style="flex-direction:column; gap:5px; width:100%;">
+            <div style="font-weight:600; color:var(--green); display:flex; justify-content:space-between;">
+              <span>✅ ${matchedProducts.length} Products matched!</span>
+              <span>Images: ${fileCount} / ${nosArr.length}</span>
+            </div>
+            ${missingNos.length > 0 ? `<div style="color:#C62828; font-size:0.8rem;">⚠️ ${missingNos.length} not found: ${missingNos.join(', ')}</div>` : ''}
+          </div>
+        `;
+      }
       preview.style.display = 'flex';
-      btn.dataset.realNo = matchedProd.product_no;
+      btn.dataset.realNos = matchedProducts.map(p => p.product_no).join(',');
+      
+      // Allow clicking if there's at least one match, errors will be shown via toast
       btn.disabled = false;
     } else {
-      preview.innerHTML = `<div style="color:#C62828;font-size:0.85rem;padding:5px;">❌ Product not found in ${cat.replace(/_/g,' ')}. Check the No.</div>`;
+      preview.innerHTML = `<div style="color:#C62828;font-size:0.85rem;padding:5px;">❌ No products found in ${cat.replace(/_/g,' ')}.</div>`;
       preview.style.display = 'block';
       btn.disabled = true;
-      delete btn.dataset.realNo;
     }
   };
 
@@ -1116,12 +1139,13 @@
         const percent = Math.floor(((i) / nosArr.length) * 100);
         document.getElementById('ai-progress-bar').style.width = percent + '%';
 
-        if (!['image/png', 'image/webp'].includes(file.type)) {
-           console.warn(`Skipping ${file.name}: invalid type.`);
+        const ext = file.name ? file.name.split('.').pop().toLowerCase() : 'png';
+        
+        if (!['image/png', 'image/webp'].includes(file.type) && !['png', 'webp'].includes(ext)) {
+           toast(`⚠️ Skipping ${file.name}: Only PNG/WEBP allowed.`, true);
            continue;
         }
 
-        const ext = file.name ? file.name.split('.').pop() : 'png';
         const filePath = `transparent_${cat}/${no}.${ext}`;
         
         // 1. Storage Upload
