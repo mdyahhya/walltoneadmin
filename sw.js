@@ -1,4 +1,5 @@
-const CACHE_NAME = 'walltone-admin-v1';
+// ─── BUMP THIS VERSION on every deploy to force cache refresh ───
+const CACHE_NAME = 'walltone-admin-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
 
@@ -11,20 +12,51 @@ self.addEventListener('activate', e => {
     self.clients.claim();
 });
 
-// Cache-first for offline support
+// Network-first for HTML pages (always get latest code from server)
+// Cache-first only for static assets (images, fonts, etc.)
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
-    event.respondWith(
-        caches.match(event.request).then(cached => {
-            return cached || fetch(event.request).then(response => {
-                if (response.status === 200) {
-                    const clone = response.clone();
-                    caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
-                }
-                return response;
-            }).catch(() => caches.match('/'));
-        })
-    );
+
+    const url = new URL(event.request.url);
+
+    // Always go network-first for same-origin HTML pages
+    const isHtml = event.request.headers.get('accept')?.includes('text/html')
+        || url.pathname === '/'
+        || url.pathname.endsWith('.html');
+
+    // Always go network for JS/CSS files (so code updates take effect)
+    const isCodeFile = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+
+    // Skip Supabase API, CDN scripts, push endpoints
+    const isExternal = !url.origin.includes(self.location.origin);
+
+    if (isExternal || isHtml || isCodeFile) {
+        // Network-first: try network, fall back to cache
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    if (response.status === 200 && !isExternal) {
+                        const clone = response.clone();
+                        caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+                    }
+                    return response;
+                })
+                .catch(() => caches.match(event.request))
+        );
+    } else {
+        // Cache-first for images and other static assets
+        event.respondWith(
+            caches.match(event.request).then(cached => {
+                return cached || fetch(event.request).then(response => {
+                    if (response.status === 200) {
+                        const clone = response.clone();
+                        caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+                    }
+                    return response;
+                });
+            })
+        );
+    }
 });
 
 // ─── RECEIVE PUSH NOTIFICATION ───
