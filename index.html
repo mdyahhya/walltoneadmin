@@ -1261,7 +1261,7 @@
       <aside class="sidebar" id="adminSidebar">
         <div class="sidebar-label" style="margin-bottom:10px">Menu</div>
 
-        <button class="sidebar-btn active" onclick="showSection('dashboard',this)">
+        <button class="sidebar-btn" onclick="showSection('dashboard',this)">
           <svg viewBox="0 0 24 24">
             <rect x="3" y="3" width="7" height="7" rx="1" />
             <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -1308,7 +1308,7 @@
           AI Transparent Images
         </button>
 
-        <button class="sidebar-btn" id="ordersNavBtn" onclick="showSection('orders',this)" style="position:relative">
+        <button class="sidebar-btn active" id="ordersNavBtn" onclick="showSection('orders',this)" style="position:relative">
           <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><path d="M9 12h6M9 16h4"/></svg>
           Orders
           <span id="pendingBadge" style="display:none;background:#c62828;color:white;border-radius:50%;font-size:0.6rem;font-weight:700;padding:2px 6px;margin-left:auto;">0</span>
@@ -1339,7 +1339,7 @@
         <div class="notif-status" id="notifStatus"></div>
 
         <!-- DASHBOARD -->
-        <div class="section-panel active" id="panel-dashboard">
+        <div class="section-panel" id="panel-dashboard">
           <div class="panel-title">Dashboard</div>
           <div class="panel-sub">Overview of your Walltone store</div>
           <div class="stats-row">
@@ -1653,7 +1653,7 @@
         </div>
 
         <!-- ORDERS SECTION -->
-        <div class="section-panel" id="panel-orders">
+        <div class="section-panel active" id="panel-orders">
           <div class="panel-title">Orders</div>
           <div class="panel-sub">All customer orders &mdash; click a row to expand item details</div>
           <div class="table-toolbar" style="margin-bottom:16px">
@@ -2727,8 +2727,8 @@
       try {
         const { data, error } = await db
           .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .select('*');
+
         if (error) throw error;
         const users = data || [];
         if (users.length === 0) {
