@@ -1188,6 +1188,29 @@
       font-family: monospace;
       resize: vertical;
     }
+
+    /* ORDER STATUS BADGES */
+    .order-status {
+      padding: 4px 12px; border-radius: 20px; font-size: 0.72rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .status-pending    { background: #FFF8E1; color: #E65100; }
+    .status-confirmed  { background: #E8F5E9; color: #2E7D32; }
+    .status-processing { background: #E3F2FD; color: #1565C0; }
+    .status-delivered  { background: #E8F5E9; color: #1B5E20; }
+    .status-cancelled  { background: #FFEBEE; color: #C62828; }
+    .order-status-select {
+      padding: 5px 10px; border: 1.5px solid var(--green-mid); border-radius: 20px;
+      font-size: 0.78rem; font-family: 'Montserrat', sans-serif; background: var(--white);
+      cursor: pointer; outline: none;
+    }
+    .order-items-row td { background: #f7fdf7; }
+    .order-items-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 0; }
+    .order-item-chip {
+      display: flex; align-items: center; gap: 8px; background: white;
+      border: 1px solid var(--green-mid); border-radius: 10px; padding: 6px 10px; font-size: 0.8rem;
+    }
+    .order-item-chip img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; }
   </style>
 
 </head>
@@ -1283,6 +1306,17 @@
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
           AI Transparent Images
+        </button>
+
+        <button class="sidebar-btn" id="ordersNavBtn" onclick="showSection('orders',this)" style="position:relative">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><path d="M9 12h6M9 16h4"/></svg>
+          Orders
+          <span id="pendingBadge" style="display:none;background:#c62828;color:white;border-radius:50%;font-size:0.6rem;font-weight:700;padding:2px 6px;margin-left:auto;">0</span>
+        </button>
+
+        <button class="sidebar-btn" onclick="showSection('users',this)">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
         </button>
       </aside>
 
@@ -1618,6 +1652,66 @@
           </div>
         </div>
 
+        <!-- ORDERS SECTION -->
+        <div class="section-panel" id="panel-orders">
+          <div class="panel-title">Orders</div>
+          <div class="panel-sub">All customer orders &mdash; click a row to expand item details</div>
+          <div class="table-toolbar" style="margin-bottom:16px">
+            <select class="filter-select" id="orderStatusFilter" onchange="filterOrders(this.value)">
+              <option value="">All Statuses</option>
+              <option value="pending">&#x1F7E1; Pending</option>
+              <option value="confirmed">&#x1F7E2; Confirmed</option>
+              <option value="processing">&#x1F535; Processing</option>
+              <option value="delivered">&#x2705; Delivered</option>
+              <option value="cancelled">&#x1F534; Cancelled</option>
+            </select>
+            <button class="btn-submit" style="padding:10px 22px;margin-top:0;font-size:0.82rem" onclick="loadOrders()">&#x1F504; Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table class="prod-table" style="min-width:850px">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Update Status</th>
+                </tr>
+              </thead>
+              <tbody id="orders-body">
+                <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- USERS SECTION -->
+        <div class="section-panel" id="panel-users">
+          <div class="panel-title">Users</div>
+          <div class="panel-sub">All registered customers from Supabase profiles</div>
+          <div style="margin-bottom:16px;text-align:right">
+            <button class="btn-submit" style="padding:10px 22px;margin-top:0;font-size:0.82rem" onclick="loadUsers()">&#x1F504; Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table class="prod-table" style="min-width:700px">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Address</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody id="users-body">
+                <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)">Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </main>
     </div>
   </div>
@@ -1782,7 +1876,8 @@
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('loggedAs').textContent = `Logged in as: ${s.name}`;
         loadAllProducts();
-        initNotifications(); // ← start push notification setup after login
+        loadOrders(); // load orders + update pending badge on login
+        initNotifications();
       }
     }
     function saveSession(name) {
@@ -1834,8 +1929,11 @@
       document.getElementById(`panel-${id}`).classList.add('active');
       btn.classList.add('active');
       if (id === 'manageProducts') renderManageTable(allProductsCache);
+      if (id === 'orders') loadOrders();
+      if (id === 'users') loadUsers();
       closeMobileSidebar();
     };
+
 
     // ── TOAST ──
     function toast(msg, isError = false) {
@@ -2430,7 +2528,6 @@
     });
 
     // ─── SERVICE WORKER + PUSH NOTIFICATIONS ───
-    // PASTE YOUR PUBLIC VAPID KEY HERE (from vapidkeys.com)
     const VAPID_PUBLIC_KEY = 'BKFzrjKqsV0SrJxm5M5MGykhPE5lDmRjCIn7ztznQqLjncJStHTl8MmvSNVhetXfHH60NlVnG6_bVMJDbT93LN0';
 
     function urlB64ToUint8Array(base64String) {
@@ -2442,27 +2539,19 @@
 
     async function initNotifications() {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-
-      // Register the service worker
       try {
         await navigator.serviceWorker.register('/sw.js');
-      } catch (e) {
-        console.log('SW registration failed:', e);
-        return;
-      }
+      } catch(e) { console.log('SW registration failed:', e); return; }
 
       const permission = Notification.permission;
       if (permission === 'granted') {
-        // Already allowed — silently re-subscribe (no UI needed)
-        await doSubscribeAndCopy(true);
+        await doSubscribeAndSave(true);
       } else if (permission === 'default') {
-        // Show the notification bar to prompt admin
         document.getElementById('notifBar').classList.add('show');
       }
-      // If 'denied' — do nothing (admin blocked it)
     }
 
-    window.enableNotifications = async function () {
+    window.enableNotifications = async function() {
       const btn = document.getElementById('allowNotifBtn');
       const statusEl = document.getElementById('notifStatus');
       btn.disabled = true;
@@ -2471,21 +2560,19 @@
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
         statusEl.className = 'notif-status error';
-        statusEl.textContent = '❌ Notifications blocked. Go to browser settings → Site settings → Allow notifications for this site.';
+        statusEl.textContent = '\u274c Notifications blocked. Go to browser settings \u2192 Allow notifications for this site.';
         btn.disabled = false;
         btn.textContent = 'Try Again';
         return;
       }
-
-      await doSubscribeAndCopy(false);
+      await doSubscribeAndSave(false);
     };
 
-    async function doSubscribeAndCopy(silent) {
+    async function doSubscribeAndSave(silent) {
       const statusEl = document.getElementById('notifStatus');
       try {
         const reg = await navigator.serviceWorker.ready;
         let sub = await reg.pushManager.getSubscription();
-
         if (!sub) {
           sub = await reg.pushManager.subscribe({
             userVisibleOnly: true,
@@ -2493,50 +2580,178 @@
           });
         }
 
+        // Save subscription to Supabase admin_push_subscriptions table
         const subJson = JSON.stringify(sub);
+        const endpointHash = sub.endpoint.slice(-20); // partial key for dedup check
 
-        // Hide the prompt bar
+        await db.from('admin_push_subscriptions').upsert({
+          subscription: subJson,
+          endpoint_key: endpointHash,
+          user_agent: navigator.userAgent.slice(0, 150),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'endpoint_key' });
+
         document.getElementById('notifBar').classList.remove('show');
 
         if (!silent) {
-          // Try auto-copy to clipboard
-          let copied = false;
-          try {
-            await navigator.clipboard.writeText(subJson);
-            copied = true;
-          } catch (e) { }
-
-          if (copied) {
-            statusEl.className = 'notif-status success';
-            statusEl.innerHTML = `
-            ✅ <strong>Notifications enabled!</strong> Subscription copied to clipboard.<br>
-            <small>Now go to your <strong>Walltone Netlify site</strong> (not admin) → 
-            Site Settings → Environment Variables → add <code>ADMIN_PUSH_SUBSCRIPTION</code> → paste → Save → Redeploy.</small>
-          `;
-          } else {
-            statusEl.className = 'notif-status success';
-            statusEl.innerHTML = `
-            ✅ <strong>Notifications enabled!</strong> Copy the value below and paste as 
-            <code>ADMIN_PUSH_SUBSCRIPTION</code> in your <strong>Walltone Netlify site</strong> env vars:<br>
-            <textarea onclick="this.select()">${subJson}</textarea>
-          `;
-          }
-
-          // Show a test notification after 1 second
+          statusEl.className = 'notif-status success';
+          statusEl.innerHTML = '\u2705 <strong>Notifications enabled on this device!</strong> This browser will now receive order alerts automatically.';
           setTimeout(() => {
-            new Notification('✅ Walltone Admin Panel', {
-              body: 'Order notifications are now active! You will be notified when orders are placed.',
+            new Notification('\u2705 Walltone Admin Panel', {
+              body: 'Order notifications are now active on this device!',
               icon: '/walltone.png'
             });
           }, 1000);
         }
 
-      } catch (err) {
+      } catch(err) {
         const statusEl = document.getElementById('notifStatus');
         statusEl.className = 'notif-status error';
-        statusEl.textContent = '❌ Error: ' + err.message;
+        statusEl.textContent = '\u274c Error: ' + err.message;
         const btn = document.getElementById('allowNotifBtn');
         if (btn) { btn.disabled = false; btn.textContent = 'Try Again'; }
+      }
+    }
+
+    // ─── ORDERS ───
+    let allOrdersCache = [];
+
+    async function loadOrders() {
+      document.getElementById('orders-body').innerHTML =
+        '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading...</td></tr>';
+      try {
+        const { data, error } = await db
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        allOrdersCache = data || [];
+        renderOrdersTable(allOrdersCache);
+
+        // Update pending badge
+        const pending = allOrdersCache.filter(o => o.status === 'pending').length;
+        const badge = document.getElementById('pendingBadge');
+        if (pending > 0) {
+          badge.textContent = pending;
+          badge.style.display = 'inline';
+        } else {
+          badge.style.display = 'none';
+        }
+      } catch(err) {
+        document.getElementById('orders-body').innerHTML =
+          `<tr><td colspan="7" style="text-align:center;padding:30px;color:#c62828">\u274c ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderOrdersTable(orders) {
+      const tbody = document.getElementById('orders-body');
+      if (!orders || orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No orders yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = orders.map(o => {
+        const date = new Date(o.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        const items = Array.isArray(o.items) ? o.items : [];
+        const itemsSummary = items.length > 0
+          ? `${items[0].name || items[0].product_no || 'Item'}${items.length > 1 ? ' +' + (items.length-1) + ' more' : ''}`
+          : '—';
+        const statusClass = 'status-' + (o.status || 'pending');
+        const statusOptions = ['pending','confirmed','processing','delivered','cancelled']
+          .map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
+
+        // Items detail row (hidden by default)
+        const itemChips = items.map(item => `
+          <div class="order-item-chip">
+            ${item.image_url ? `<img src="${item.image_url}" alt="">` : ''}
+            <div>
+              <div style="font-weight:600;font-size:0.8rem">${item.name || item.product_no || 'Product'}</div>
+              <div style="color:var(--text-muted);font-size:0.72rem">₹${Number(item.price||0).toLocaleString('en-IN')} × ${item.quantity||1}</div>
+            </div>
+          </div>`).join('');
+
+        return `
+          <tr style="cursor:pointer" onclick="toggleOrderDetail('od-${o.id}')">
+            <td style="font-size:0.78rem;white-space:nowrap">${date}</td>
+            <td><strong>${o.user_name || '—'}</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">${o.user_email || ''}</span></td>
+            <td>${o.phone || '—'}</td>
+            <td style="font-size:0.82rem">${itemsSummary}</td>
+            <td><strong>₹${Number(o.total_amount||0).toLocaleString('en-IN')}</strong></td>
+            <td><span class="order-status ${statusClass}">${(o.status||'pending').toUpperCase()}</span></td>
+            <td onclick="event.stopPropagation()">
+              <select class="order-status-select" onchange="updateOrderStatus('${o.id}', this.value)">
+                ${statusOptions}
+              </select>
+            </td>
+          </tr>
+          <tr class="order-items-row" id="od-${o.id}" style="display:none">
+            <td colspan="7" style="padding:12px 20px">
+              <div style="font-size:0.8rem;font-weight:600;margin-bottom:8px;color:var(--text-muted)">SHIPPING: ${o.shipping_address || '—'}</div>
+              <div class="order-items-list">${itemChips}</div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    window.toggleOrderDetail = function(id) {
+      const row = document.getElementById(id);
+      if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+    };
+
+    window.filterOrders = function(status) {
+      const filtered = status ? allOrdersCache.filter(o => o.status === status) : allOrdersCache;
+      renderOrdersTable(filtered);
+    };
+
+    window.updateOrderStatus = async function(orderId, newStatus) {
+      try {
+        const { error } = await db.from('orders').update({ status: newStatus }).eq('id', orderId);
+        if (error) throw error;
+        toast('\u2705 Order status updated to ' + newStatus);
+        // Update local cache
+        const o = allOrdersCache.find(x => x.id === orderId);
+        if (o) o.status = newStatus;
+        // Refresh badge
+        const pending = allOrdersCache.filter(o => o.status === 'pending').length;
+        const badge = document.getElementById('pendingBadge');
+        badge.textContent = pending;
+        badge.style.display = pending > 0 ? 'inline' : 'none';
+      } catch(err) {
+        toast('\u274c Failed: ' + err.message, true);
+      }
+    };
+
+    // ─── USERS ───
+    async function loadUsers() {
+      document.getElementById('users-body').innerHTML =
+        '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)">Loading...</td></tr>';
+      try {
+        const { data, error } = await db
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        const users = data || [];
+        if (users.length === 0) {
+          document.getElementById('users-body').innerHTML =
+            '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">No registered users yet.</td></tr>';
+          return;
+        }
+        document.getElementById('users-body').innerHTML = users.map(u => {
+          const joined = u.created_at
+            ? new Date(u.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+            : '—';
+          return `
+            <tr>
+              <td><strong>${u.full_name || u.name || '—'}</strong></td>
+              <td style="font-size:0.82rem">${u.email || '—'}</td>
+              <td>${u.phone || '—'}</td>
+              <td style="font-size:0.8rem;max-width:200px">${u.address || '—'}</td>
+              <td style="font-size:0.78rem;color:var(--text-muted)">${joined}</td>
+            </tr>`;
+        }).join('');
+      } catch(err) {
+        document.getElementById('users-body').innerHTML =
+          `<tr><td colspan="5" style="text-align:center;padding:30px;color:#c62828">\u274c ${err.message}. Make sure profiles table has read access for anon key.</td></tr>`;
       }
     }
 
