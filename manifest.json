@@ -1,0 +1,25 @@
+{
+  "name": "Walltone Admin Panel",
+  "short_name": "WT Admin",
+  "description": "Manage Walltone Decors orders, products and notifications",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#2E7D32",
+  "icons": [
+    {
+      "src": "/walltoneadmin.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/walltoneadmin.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
