@@ -1191,26 +1191,79 @@
 
     /* ORDER STATUS BADGES */
     .order-status {
-      padding: 4px 12px; border-radius: 20px; font-size: 0.72rem;
-      font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
     }
-    .status-pending    { background: #FFF8E1; color: #E65100; }
-    .status-confirmed  { background: #E8F5E9; color: #2E7D32; }
-    .status-processing { background: #E3F2FD; color: #1565C0; }
-    .status-delivered  { background: #E8F5E9; color: #1B5E20; }
-    .status-cancelled  { background: #FFEBEE; color: #C62828; }
+
+    .status-pending {
+      background: #FFF8E1;
+      color: #E65100;
+    }
+
+    .status-confirmed {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .status-processing {
+      background: #E3F2FD;
+      color: #1565C0;
+    }
+
+    .status-delivered {
+      background: #E8F5E9;
+      color: #1B5E20;
+    }
+
+    .status-cancelled {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
     .order-status-select {
-      padding: 5px 10px; border: 1.5px solid var(--green-mid); border-radius: 20px;
-      font-size: 0.78rem; font-family: 'Montserrat', sans-serif; background: var(--white);
-      cursor: pointer; outline: none;
+      padding: 5px 10px;
+      border: 1.5px solid var(--green-mid);
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-family: 'Montserrat', sans-serif;
+      background: var(--white);
+      cursor: pointer;
+      outline: none;
     }
-    .order-items-row td { background: #f7fdf7; }
-    .order-items-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 0; }
+
+    .order-items-row td {
+      background: #f7fdf7;
+    }
+
+    .order-items-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 6px 0;
+    }
+
     .order-item-chip {
-      display: flex; align-items: center; gap: 8px; background: white;
-      border: 1px solid var(--green-mid); border-radius: 10px; padding: 6px 10px; font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: 1px solid var(--green-mid);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
     }
-    .order-item-chip img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; }
+
+    .order-item-chip img {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
   </style>
 
 </head>
@@ -1308,14 +1361,24 @@
           AI Transparent Images
         </button>
 
-        <button class="sidebar-btn active" id="ordersNavBtn" onclick="showSection('orders',this)" style="position:relative">
-          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><path d="M9 12h6M9 16h4"/></svg>
+        <button class="sidebar-btn active" id="ordersNavBtn" onclick="showSection('orders',this)"
+          style="position:relative">
+          <svg viewBox="0 0 24 24">
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+            <rect x="9" y="3" width="6" height="4" rx="1" ry="1" />
+            <path d="M9 12h6M9 16h4" />
+          </svg>
           Orders
-          <span id="pendingBadge" style="display:none;background:#c62828;color:white;border-radius:50%;font-size:0.6rem;font-weight:700;padding:2px 6px;margin-left:auto;">0</span>
+          <span id="pendingBadge"
+            style="display:none;background:#c62828;color:white;border-radius:50%;font-size:0.6rem;font-weight:700;padding:2px 6px;margin-left:auto;">0</span>
         </button>
 
         <button class="sidebar-btn" onclick="showSection('users',this)">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
           Users
         </button>
       </aside>
@@ -1665,12 +1728,14 @@
               <option value="delivered">&#x2705; Delivered</option>
               <option value="cancelled">&#x1F534; Cancelled</option>
             </select>
-            <button class="btn-submit" style="padding:10px 22px;margin-top:0;font-size:0.82rem" onclick="loadOrders()">&#x1F504; Refresh</button>
+            <button class="btn-submit" style="padding:10px 22px;margin-top:0;font-size:0.82rem"
+              onclick="loadOrders()">&#x1F504; Refresh</button>
           </div>
           <div class="table-wrap">
             <table class="prod-table" style="min-width:850px">
               <thead>
                 <tr>
+                  <th>WhatsApp</th>
                   <th>Date</th>
                   <th>Customer</th>
                   <th>Phone</th>
@@ -1681,7 +1746,9 @@
                 </tr>
               </thead>
               <tbody id="orders-body">
-                <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading orders...</td></tr>
+                <tr>
+                  <td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading orders...</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -1692,7 +1759,8 @@
           <div class="panel-title">Users</div>
           <div class="panel-sub">All registered customers from Supabase profiles</div>
           <div style="margin-bottom:16px;text-align:right">
-            <button class="btn-submit" style="padding:10px 22px;margin-top:0;font-size:0.82rem" onclick="loadUsers()">&#x1F504; Refresh</button>
+            <button class="btn-submit" style="padding:10px 22px;margin-top:0;font-size:0.82rem"
+              onclick="loadUsers()">&#x1F504; Refresh</button>
           </div>
           <div class="table-wrap">
             <table class="prod-table" style="min-width:700px">
@@ -1706,7 +1774,9 @@
                 </tr>
               </thead>
               <tbody id="users-body">
-                <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)">Loading users...</td></tr>
+                <tr>
+                  <td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)">Loading users...</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -2527,6 +2597,7 @@
       if (e.target === this) closeModal();
     });
 
+
     // ─── SERVICE WORKER + PUSH NOTIFICATIONS ───
     const VAPID_PUBLIC_KEY = 'BKFzrjKqsV0SrJxm5M5MGykhPE5lDmRjCIn7ztznQqLjncJStHTl8MmvSNVhetXfHH60NlVnG6_bVMJDbT93LN0';
 
@@ -2541,7 +2612,7 @@
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
       try {
         await navigator.serviceWorker.register('/sw.js');
-      } catch(e) { console.log('SW registration failed:', e); return; }
+      } catch (e) { console.log('SW registration failed:', e); return; }
 
       const permission = Notification.permission;
       if (permission === 'granted') {
@@ -2551,7 +2622,7 @@
       }
     }
 
-    window.enableNotifications = async function() {
+    window.enableNotifications = async function () {
       const btn = document.getElementById('allowNotifBtn');
       const statusEl = document.getElementById('notifStatus');
       btn.disabled = true;
@@ -2604,7 +2675,7 @@
           }, 1000);
         }
 
-      } catch(err) {
+      } catch (err) {
         const statusEl = document.getElementById('notifStatus');
         statusEl.className = 'notif-status error';
         statusEl.textContent = '\u274c Error: ' + err.message;
@@ -2618,7 +2689,7 @@
 
     async function loadOrders() {
       document.getElementById('orders-body').innerHTML =
-        '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading...</td></tr>';
+        '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Loading...</td></tr>';
       try {
         const { data, error } = await db
           .from('orders')
@@ -2637,27 +2708,27 @@
         } else {
           badge.style.display = 'none';
         }
-      } catch(err) {
+      } catch (err) {
         document.getElementById('orders-body').innerHTML =
-          `<tr><td colspan="7" style="text-align:center;padding:30px;color:#c62828">\u274c ${err.message}</td></tr>`;
+          `<tr><td colspan="8" style="text-align:center;padding:30px;color:#c62828">\u274c ${err.message}</td></tr>`;
       }
     }
 
     function renderOrdersTable(orders) {
       const tbody = document.getElementById('orders-body');
       if (!orders || orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No orders yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">No orders yet.</td></tr>';
         return;
       }
       tbody.innerHTML = orders.map(o => {
-        const date = new Date(o.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        const date = new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         const items = Array.isArray(o.items) ? o.items : [];
         const itemsSummary = items.length > 0
-          ? `${items[0].name || items[0].product_no || 'Item'}${items.length > 1 ? ' +' + (items.length-1) + ' more' : ''}`
+          ? `${items[0].name || items[0].product_no || 'Item'}${items.length > 1 ? ' +' + (items.length - 1) + ' more' : ''}`
           : '—';
         const statusClass = 'status-' + (o.status || 'pending');
-        const statusOptions = ['pending','confirmed','processing','delivered','cancelled']
-          .map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
+        const statusOptions = ['pending', 'confirmed', 'processing', 'delivered', 'cancelled']
+          .map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('');
 
         // Items detail row (hidden by default)
         const itemChips = items.map(item => `
@@ -2665,37 +2736,54 @@
             ${item.image_url ? `<img src="${item.image_url}" alt="">` : ''}
             <div>
               <div style="font-weight:600;font-size:0.8rem">${item.name || item.product_no || 'Product'}</div>
-              <div style="color:var(--text-muted);font-size:0.72rem">₹${Number(item.price||0).toLocaleString('en-IN')} × ${item.quantity||1}</div>
+              <div style="color:var(--text-muted);font-size:0.72rem">₹${Number(item.price || 0).toLocaleString('en-IN')} × ${item.quantity || 1}</div>
             </div>
           </div>`).join('');
 
-        const pNum = (o.phone || '').replace(/\D/g,'');
+        const pNum = (o.phone || '').replace(/\D/g, '');
         const formattedPhone = pNum.length === 10 ? '91' + pNum : pNum;
         const firstItem = items.length > 0 ? items[0] : {};
         const itemName = firstItem.name || firstItem.product_no || 'Product';
         const itemImage = firstItem.image_url || 'No Image Available';
-        const msg = encodeURIComponent(`Sir you have ordered ${itemName} from our site walltone.in and you make ₹${Number(o.total_amount||0).toLocaleString('en-IN')} payment to this UPI @shoaib.maindargi.09@okaxis and send screenshot here on whatsapp and your order will be confirmed.\n\nProduct Image Link:\n${itemImage}`);
-        const waLink = `https://wa.me/${formattedPhone}?text=${msg}`;
+        const amount = Number(o.total_amount || 0).toLocaleString('en-IN');
+        
+        const msgEn = encodeURIComponent(`Sir you have ordered ${itemName} from our site walltone.in and you make ₹${amount} payment to this UPI @shoaib.maindargi.09@okaxis and send screenshot here on whatsapp and your order will be confirmed.\n\nProduct Image Link:\n${itemImage}`);
+        const waLinkEn = `https://wa.me/${formattedPhone}?text=${msgEn}`;
+        
+        const msgHi = encodeURIComponent(`Sir aapne hamari site walltone.in se ${itemName} order kiya hai, is UPI id @shoaib.maindargi.09@okaxis par ₹${amount} ka payment kijiye aur screenshot yahan whatsapp par bhej dijiye, aapka order confirm ho jayega.\n\nProduct Image Link:\n${itemImage}`);
+        const waLinkHi = `https://wa.me/${formattedPhone}?text=${msgHi}`;
+        
+        const msgMr = encodeURIComponent(`सर, तुम्ही आमच्या walltone.in या साईटवरून ${itemName} ची ऑर्डर दिली आहे. कृपया @shoaib.maindargi.09@okaxis या UPI वर ₹${amount} चे पेमेंट करा आणि स्क्रीनशॉट इथे व्हॉट्सॲपवर पाठवा. त्यानंतर तुमची ऑर्डर कन्फर्म होईल.\n\nProduct Image Link:\n${itemImage}`);
+        const waLinkMr = `https://wa.me/${formattedPhone}?text=${msgMr}`;
 
         return `
           <tr style="cursor:pointer" onclick="toggleOrderDetail('od-${o.id}')">
+            <td onclick="event.stopPropagation()" style="position: relative; overflow: visible;">
+              <div class="wa-dropdown" style="position: relative;">
+                <button onclick="toggleWaMenu('wa-menu-${o.id}')" style="display: flex; align-items: center; justify-content: center; background: #25D366; border: none; border-radius: 50%; min-width: 32px; height: 32px; cursor: pointer; transition: transform 0.2s;" title="Send WhatsApp Message" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.571-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                </button>
+                <div id="wa-menu-${o.id}" class="wa-menu-content" style="display: none; position: absolute; left: 40px; top: -50%; min-width: 150px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 9999; border: 1px solid var(--green-light); overflow: hidden;">
+                  <a href="${waLinkEn}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">English</a>
+                  <a href="${waLinkHi}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Hindi (Hinglish)</a>
+                  <a href="${waLinkMr}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block;" onclick="toggleWaMenu('wa-menu-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Marathi</a>
+                </div>
+              </div>
+            </td>
             <td style="font-size:0.78rem;white-space:nowrap">${date}</td>
             <td><strong>${o.user_name || '—'}</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">${o.user_email || ''}</span></td>
             <td>${o.phone || '—'}</td>
             <td style="font-size:0.82rem">${itemsSummary}</td>
-            <td><strong>₹${Number(o.total_amount||0).toLocaleString('en-IN')}</strong></td>
-            <td><span class="order-status ${statusClass}">${(o.status||'pending').toUpperCase()}</span></td>
-            <td onclick="event.stopPropagation()" style="display: flex; gap: 8px; align-items: center; border-bottom: none;">
+            <td><strong>₹${amount}</strong></td>
+            <td><span class="order-status ${statusClass}">${(o.status || 'pending').toUpperCase()}</span></td>
+            <td onclick="event.stopPropagation()">
               <select class="order-status-select" onchange="updateOrderStatus('${o.id}', this.value)">
                 ${statusOptions}
               </select>
-              <a href="${waLink}" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #25D366; border-radius: 50%; min-width: 30px; height: 30px; text-decoration: none;" title="Send WhatsApp Message">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.571-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-              </a>
             </td>
           </tr>
           <tr class="order-items-row" id="od-${o.id}" style="display:none">
-            <td colspan="7" style="padding:12px 20px">
+            <td colspan="8" style="padding:12px 20px">
               <div style="font-size:0.8rem;font-weight:600;margin-bottom:8px;color:var(--text-muted)">SHIPPING: ${o.shipping_address || '—'}</div>
               <div class="order-items-list">${itemChips}</div>
             </td>
@@ -2703,17 +2791,17 @@
       }).join('');
     }
 
-    window.toggleOrderDetail = function(id) {
+    window.toggleOrderDetail = function (id) {
       const row = document.getElementById(id);
       if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
     };
 
-    window.filterOrders = function(status) {
+    window.filterOrders = function (status) {
       const filtered = status ? allOrdersCache.filter(o => o.status === status) : allOrdersCache;
       renderOrdersTable(filtered);
     };
 
-    window.updateOrderStatus = async function(orderId, newStatus) {
+    window.updateOrderStatus = async function (orderId, newStatus) {
       try {
         const { error } = await db.from('orders').update({ status: newStatus }).eq('id', orderId);
         if (error) throw error;
@@ -2726,7 +2814,7 @@
         const badge = document.getElementById('pendingBadge');
         badge.textContent = pending;
         badge.style.display = pending > 0 ? 'inline' : 'none';
-      } catch(err) {
+      } catch (err) {
         toast('\u274c Failed: ' + err.message, true);
       }
     };
@@ -2749,7 +2837,7 @@
         }
         document.getElementById('users-body').innerHTML = users.map(u => {
           const joined = u.created_at
-            ? new Date(u.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+            ? new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
             : '—';
           return `
             <tr>
@@ -2760,11 +2848,25 @@
               <td style="font-size:0.78rem;color:var(--text-muted)">${joined}</td>
             </tr>`;
         }).join('');
-      } catch(err) {
+      } catch (err) {
         document.getElementById('users-body').innerHTML =
           `<tr><td colspan="5" style="text-align:center;padding:30px;color:#c62828">\u274c ${err.message}. Make sure profiles table has read access for anon key.</td></tr>`;
       }
     }
+
+    window.toggleWaMenu = function(menuId) {
+      // Hide all menus first
+      document.querySelectorAll('.wa-menu-content').forEach(el => {
+        if (el.id !== menuId) el.style.display = 'none';
+      });
+      const menu = document.getElementById(menuId);
+      if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    };
+
+    // Close WhatsApp menu when clicking outside
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.wa-menu-content').forEach(el => el.style.display = 'none');
+    });
 
     checkSession();
   </script>
