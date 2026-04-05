@@ -1718,23 +1718,38 @@
         <!-- ORDERS SECTION -->
         <div class="section-panel active" id="panel-orders">
           <div class="panel-title">Orders</div>
-          <div class="panel-sub">All customer orders &mdash; click a row to expand item details</div>
-          <div class="table-toolbar" style="margin-bottom:16px">
-            <select class="filter-select" id="orderStatusFilter" onchange="filterOrders(this.value)">
-              <option value="">All Statuses</option>
-              <option value="pending">&#x1F7E1; Pending</option>
-              <option value="confirmed">&#x1F7E2; Confirmed</option>
-              <option value="processing">&#x1F535; Processing</option>
-              <option value="delivered">&#x2705; Delivered</option>
-              <option value="cancelled">&#x1F534; Cancelled</option>
-            </select>
-            <button class="btn-submit" style="padding:10px 22px;margin-top:0;font-size:0.82rem"
-              onclick="loadOrders()">&#x1F504; Refresh</button>
+          <div class="panel-sub">Manage customer orders &mdash; select rows to bulk delete or click to edit</div>
+          
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="btn-select-mode active" id="tab-pending" onclick="switchOrderTab('pending')">Pending Orders</button>
+            <button class="btn-select-mode" id="tab-placed" onclick="switchOrderTab('placed')">Placed Orders</button>
           </div>
+
+          <div class="table-toolbar" style="margin-bottom:16px">
+            <div style="display:flex; gap:10px;">
+              <select class="filter-select" id="orderStatusFilter" onchange="filterOrders(this.value)" style="display:none;">
+                <option value="">All Statuses</option>
+              </select>
+              <button class="btn-select-mode" id="orderSelectModeBtn" onclick="toggleOrderSelectMode()">✅ Select</button>
+            </div>
+            <button class="btn-submit" style="padding:10px 22px;margin-top:0;font-size:0.82rem" onclick="loadOrders(true)">&#x1F504; Refresh</button>
+          </div>
+
+          <div class="bulk-delete-bar" id="orderBulkDeleteBar">
+            <div style="font-size: 0.88rem; font-weight: 500;">
+              <span id="orderSelectedCount">0</span> orders selected
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-cancel" style="padding: 7px 18px; font-size: 0.78rem;" onclick="cancelOrderSelection()">Cancel</button>
+              <button class="btn-bulk-del" onclick="bulkDeleteOrders()">🗑️ Delete Selected</button>
+            </div>
+          </div>
+
           <div class="table-wrap">
             <table class="prod-table" style="min-width:850px">
               <thead>
                 <tr>
+                  <th class="checkbox-col order-checkbox-col" id="order-header-checkbox-col"><input type="checkbox" class="select-checkbox" onclick="toggleAllOrderCheckboxes(this)"></th>
                   <th>WhatsApp</th>
                   <th>Date</th>
                   <th>Customer</th>
@@ -1742,12 +1757,11 @@
                   <th>Items</th>
                   <th>Total</th>
                   <th>Status</th>
-                  <th>Update Status</th>
                 </tr>
               </thead>
               <tbody id="orders-body">
                 <tr>
-                  <td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading orders...</td>
+                  <td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Loading orders...</td>
                 </tr>
               </tbody>
             </table>
@@ -1783,6 +1797,21 @@
         </div>
 
       </main>
+    </div>
+  </div>
+
+  <!-- ORDER EDIT MODAL -->
+  <div class="modal-overlay" id="orderEditModal">
+    <div class="modal" style="max-width: 600px; padding: 30px;">
+      <div class="modal-title" style="margin-bottom: 15px;">📦 Edit Order</div>
+      
+      <div id="orderEditContent"></div>
+      
+      <div class="modal-actions" style="margin-top: 25px;">
+        <button class="btn-submit" id="btn-mark-placed" onclick="markOrderPlaced()" style="background:#1565C0; flex: 1;">✔️ Order Placed</button>
+        <button class="btn-submit" id="saveOrderEditBtn" onclick="saveOrderEdit()" style="flex: 1;">💾 Save</button>
+        <button class="btn-cancel" onclick="document.getElementById('orderEditModal').classList.remove('open')">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -2686,6 +2715,86 @@
 
     // ─── ORDERS ───
     let allOrdersCache = [];
+    let currentOrderTab = 'pending';
+    let isOrderSelectMode = false;
+    let selectedOrderIds = new Set();
+    let currentlyEditingOrderId = null;
+
+    window.switchOrderTab = function(tab) {
+      currentOrderTab = tab;
+      document.getElementById('tab-pending').classList.toggle('active', tab === 'pending');
+      document.getElementById('tab-placed').classList.toggle('active', tab === 'placed');
+      cancelOrderSelection();
+      renderOrdersTable(allOrdersCache);
+    };
+
+    window.toggleOrderSelectMode = function () {
+      isOrderSelectMode = !isOrderSelectMode;
+      const btn = document.getElementById('orderSelectModeBtn');
+      const cols = document.querySelectorAll('.order-checkbox-col');
+
+      if (isOrderSelectMode) {
+        btn.classList.add('active');
+        btn.textContent = '✕ Close Select';
+        cols.forEach(c => c.classList.add('show'));
+      } else {
+        btn.classList.remove('active');
+        btn.textContent = '✅ Select';
+        cols.forEach(c => c.classList.remove('show'));
+        cancelOrderSelection();
+      }
+    };
+
+    window.toggleAllOrderCheckboxes = function (master) {
+      const checkboxes = document.querySelectorAll('.order-row-checkbox');
+      selectedOrderIds.clear();
+      checkboxes.forEach(cb => {
+        cb.checked = master.checked;
+        if (cb.checked) selectedOrderIds.add(cb.dataset.id);
+      });
+      updateOrderSelectedCount();
+    };
+
+    window.handleOrderRowCheckbox = function (cb) {
+      const id = cb.dataset.id;
+      if (cb.checked) selectedOrderIds.add(id);
+      else selectedOrderIds.delete(id);
+      updateOrderSelectedCount();
+    };
+
+    function updateOrderSelectedCount() {
+      const count = selectedOrderIds.size;
+      document.getElementById('orderSelectedCount').textContent = count;
+      const deleteBar = document.getElementById('orderBulkDeleteBar');
+      if (count > 0) deleteBar.classList.add('show');
+      else deleteBar.classList.remove('show');
+    }
+
+    window.cancelOrderSelection = function () {
+      selectedOrderIds.clear();
+      document.querySelectorAll('.order-row-checkbox').forEach(cb => cb.checked = false);
+      const master = document.querySelector('#order-header-checkbox-col input');
+      if (master) master.checked = false;
+      updateOrderSelectedCount();
+    };
+
+    window.bulkDeleteOrders = async function () {
+      const count = selectedOrderIds.size;
+      if (count === 0) return;
+      if (!confirm(`⚠️ Are you sure you want to delete ${count} selected order(s)?\n\nThis action cannot be undone.`)) return;
+
+      try {
+        const idsToDelete = Array.from(selectedOrderIds);
+        const { error } = await db.from('orders').delete().in('id', idsToDelete);
+        if (error) throw error;
+
+        toast(`🗑️ ${count} orders deleted successfully.`);
+        cancelOrderSelection();
+        loadOrders();
+      } catch (err) {
+        toast('❌ Bulk delete failed: ' + err.message, true);
+      }
+    };
 
     async function loadOrders() {
       document.getElementById('orders-body').innerHTML =
@@ -2716,30 +2825,27 @@
 
     function renderOrdersTable(orders) {
       const tbody = document.getElementById('orders-body');
-      if (!orders || orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">No orders yet.</td></tr>';
+      
+      let filteredOrders;
+      if (currentOrderTab === 'pending') {
+         filteredOrders = orders.filter(o => o.status === 'pending' && !o.is_placed);
+      } else {
+         filteredOrders = orders.filter(o => o.is_placed === true);
+      }
+      
+      if (!filteredOrders || filteredOrders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">No ${currentOrderTab} orders found.</td></tr>`;
         return;
       }
-      tbody.innerHTML = orders.map(o => {
+      
+      tbody.innerHTML = filteredOrders.map(o => {
         const date = new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         const items = Array.isArray(o.items) ? o.items : [];
         const itemsSummary = items.length > 0
           ? `${items[0].name || items[0].product_no || 'Item'}${items.length > 1 ? ' +' + (items.length - 1) + ' more' : ''}`
           : '—';
         const statusClass = 'status-' + (o.status || 'pending');
-        const statusOptions = ['pending', 'confirmed', 'processing', 'delivered', 'cancelled']
-          .map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('');
-
-        // Items detail row (hidden by default)
-        const itemChips = items.map(item => `
-          <div class="order-item-chip">
-            ${item.image_url ? `<img src="${item.image_url}" alt="">` : ''}
-            <div>
-              <div style="font-weight:600;font-size:0.8rem">${item.name || item.product_no || 'Product'}</div>
-              <div style="color:var(--text-muted);font-size:0.72rem">₹${Number(item.price || 0).toLocaleString('en-IN')} × ${item.quantity || 1}</div>
-            </div>
-          </div>`).join('');
-
+        
         const pNum = (o.phone || '').replace(/\D/g, '');
         const formattedPhone = pNum.length === 10 ? '91' + pNum : pNum;
         const firstItem = items.length > 0 ? items[0] : {};
@@ -2757,16 +2863,19 @@
         const waLinkMr = `https://wa.me/${formattedPhone}?text=${msgMr}`;
 
         return `
-          <tr style="cursor:pointer" onclick="toggleOrderDetail('od-${o.id}')">
+          <tr style="cursor:pointer" onclick="openOrderEditModal('${o.id}')">
+            <td class="checkbox-col order-checkbox-col ${isOrderSelectMode ? 'show' : ''}" onclick="event.stopPropagation()">
+              <input type="checkbox" class="select-checkbox order-row-checkbox" data-id="${o.id}" onchange="handleOrderRowCheckbox(this)" ${selectedOrderIds.has(o.id) ? 'checked' : ''}>
+            </td>
             <td onclick="event.stopPropagation()" style="position: relative; overflow: visible;">
               <div class="wa-dropdown" style="position: relative;">
-                <button onclick="toggleWaMenu('wa-menu-${o.id}')" style="display: flex; align-items: center; justify-content: center; background: #25D366; border: none; border-radius: 50%; min-width: 32px; height: 32px; cursor: pointer; transition: transform 0.2s;" title="Send WhatsApp Message" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                <button onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" style="display: flex; align-items: center; justify-content: center; background: #25D366; border: none; border-radius: 50%; min-width: 32px; height: 32px; cursor: pointer; transition: transform 0.2s;" title="Send WhatsApp Message" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.571-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
                 </button>
-                <div id="wa-menu-${o.id}" class="wa-menu-content" style="display: none; position: absolute; left: 40px; top: -50%; min-width: 150px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 9999; border: 1px solid var(--green-light); overflow: hidden;">
-                  <a href="${waLinkEn}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">English</a>
-                  <a href="${waLinkHi}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Hindi (Hinglish)</a>
-                  <a href="${waLinkMr}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block;" onclick="toggleWaMenu('wa-menu-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Marathi</a>
+                <div id="wa-menu-tbl-${o.id}" class="wa-menu-content" style="display: none; position: absolute; left: 40px; top: -50%; min-width: 150px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 9999; border: 1px solid var(--green-light); overflow: hidden;">
+                  <a href="${waLinkEn}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">English</a>
+                  <a href="${waLinkHi}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Hindi (Hinglish)</a>
+                  <a href="${waLinkMr}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Marathi</a>
                 </div>
               </div>
             </td>
@@ -2775,26 +2884,145 @@
             <td>${o.phone || '—'}</td>
             <td style="font-size:0.82rem">${itemsSummary}</td>
             <td><strong>₹${amount}</strong></td>
-            <td><span class="order-status ${statusClass}">${(o.status || 'pending').toUpperCase()}</span></td>
-            <td onclick="event.stopPropagation()">
-              <select class="order-status-select" onchange="updateOrderStatus('${o.id}', this.value)">
-                ${statusOptions}
-              </select>
-            </td>
-          </tr>
-          <tr class="order-items-row" id="od-${o.id}" style="display:none">
-            <td colspan="8" style="padding:12px 20px">
-              <div style="font-size:0.8rem;font-weight:600;margin-bottom:8px;color:var(--text-muted)">SHIPPING: ${o.shipping_address || '—'}</div>
-              <div class="order-items-list">${itemChips}</div>
-            </td>
+            <td><span class="order-status ${statusClass}">${(o.status || 'pending').toUpperCase()} ${o.is_placed ? ' (PAID)' : ''}</span></td>
           </tr>`;
       }).join('');
     }
 
-    window.toggleOrderDetail = function (id) {
-      const row = document.getElementById(id);
-      if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-    };
+    window.openOrderEditModal = function(id) {
+       currentlyEditingOrderId = id;
+       const o = allOrdersCache.find(x => x.id === id);
+       if (!o) return;
+
+       const items = Array.isArray(o.items) ? o.items : [];
+       const itemChips = items.map(item => `
+         <div class="order-item-chip" style="padding: 10px; background: white; border-radius: 8px;">
+           ${item.image_url ? `<img src="${item.image_url}" alt="" style="width: 40px; height: 40px; border-radius: 6px;">` : ''}
+           <div>
+             <div style="font-weight:600;font-size:0.85rem">${item.name || item.product_no || 'Product'}</div>
+             <div style="color:var(--text-muted);font-size:0.75rem">₹${Number(item.price || 0).toLocaleString('en-IN')} × ${item.quantity || 1}</div>
+           </div>
+         </div>`).join('');
+
+       const pNum = (o.phone || '').replace(/\D/g, '');
+       const formattedPhone = pNum.length === 10 ? '91' + pNum : pNum;
+       const firstItem = items.length > 0 ? items[0] : {};
+       const itemName = firstItem.name || firstItem.product_no || 'Product';
+       const itemImage = firstItem.image_url || 'No Image Available';
+       const amount = Number(o.total_amount || 0).toLocaleString('en-IN');
+       
+       const msgEn = encodeURIComponent(`Sir you have ordered ${itemName} from our site walltone.in and you make ₹${amount} payment to this UPI @shoaib.maindargi.09@okaxis and send screenshot here on whatsapp and your order will be confirmed.\n\nProduct Image Link:\n${itemImage}`);
+       const waLinkEn = `https://wa.me/${formattedPhone}?text=${msgEn}`;
+       const msgHi = encodeURIComponent(`Sir aapne hamari site walltone.in se ${itemName} order kiya hai, is UPI id @shoaib.maindargi.09@okaxis par ₹${amount} ka payment kijiye aur screenshot yahan whatsapp par bhej dijiye, aapka order confirm ho jayega.\n\nProduct Image Link:\n${itemImage}`);
+       const waLinkHi = `https://wa.me/${formattedPhone}?text=${msgHi}`;
+       const msgMr = encodeURIComponent(`सर, तुम्ही आमच्या walltone.in या साईटवरून ${itemName} ची ऑर्डर दिली आहे. कृपया @shoaib.maindargi.09@okaxis या UPI वर ₹${amount} चे पेमेंट करा आणि स्क्रीनशॉट इथे व्हॉट्सॲपवर पाठवा. त्यानंतर तुमची ऑर्डर कन्फर्म होईल.\n\nProduct Image Link:\n${itemImage}`);
+       const waLinkMr = `https://wa.me/${formattedPhone}?text=${msgMr}`;
+
+       document.getElementById('orderEditContent').innerHTML = `
+         <div style="display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap;">
+           <div style="flex:1; min-width: 200px;">
+             <label style="font-size:0.8rem;font-weight:600;">Customer Name</label>
+             <input type="text" id="edit-order-name" value="${o.user_name || ''}" style="width:100%; padding:10px; border:2px solid var(--green-mid); border-radius:8px; margin-top:5px;"/>
+           </div>
+           <div style="flex:1; min-width: 200px;">
+             <label style="font-size:0.8rem;font-weight:600;">Phone</label>
+             <div style="display:flex; gap:10px; margin-top:5px; align-items: center;">
+                <input type="text" id="edit-order-phone" value="${o.phone || ''}" style="width:100%; padding:10px; border:2px solid var(--green-mid); border-radius:8px;"/>
+                
+               <div class="wa-dropdown" style="position: relative;">
+                 <button onclick="toggleWaMenu('wa-menu-modal-${o.id}')" style="display: flex; align-items: center; justify-content: center; background: #25D366; border: none; border-radius: 8px; min-width: 42px; height: 42px; cursor: pointer; transition: transform 0.2s;" title="Send WhatsApp Message" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                   <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.571-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                 </button>
+                 <div id="wa-menu-modal-${o.id}" class="wa-menu-content" style="display: none; position: absolute; right: 50px; top: 0; min-width: 150px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 9999; border: 1px solid var(--green-light); overflow: hidden;">
+                   <a href="${waLinkEn}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">English</a>
+                   <a href="${waLinkHi}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Hindi (Hinglish)</a>
+                   <a href="${waLinkMr}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Marathi</a>
+                 </div>
+               </div>
+
+             </div>
+           </div>
+         </div>
+         
+         <div style="margin-bottom:20px;">
+           <label style="font-size:0.8rem;font-weight:600;">Email</label>
+           <input type="email" id="edit-order-email" value="${o.user_email || ''}" style="width:100%; padding:10px; border:2px solid var(--green-mid); border-radius:8px; margin-top:5px;"/>
+         </div>
+
+         <div style="margin-bottom:20px;">
+             <label style="font-size:0.8rem;font-weight:600;">Shipping Address</label>
+             <textarea id="edit-order-address" style="width:100%; padding:10px; border:2px solid var(--green-mid); border-radius:8px; margin-top:5px; resize:vertical; min-height: 60px;">${o.shipping_address || ''}</textarea>
+         </div>
+         <div style="margin-bottom:20px;">
+             <label style="font-size:0.8rem;font-weight:600;">Status</label>
+             <select id="edit-order-status" style="width:100%; padding:10px; border:2px solid var(--green-mid); border-radius:8px; margin-top:5px;">
+                <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+                <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
+                <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
+                <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
+                <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+             </select>
+         </div>
+         
+         <div style="margin-bottom:20px; display:flex; align-items:center; gap: 10px;">
+             <label style="font-size:0.8rem;font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="edit-order-is-placed" ${o.is_placed ? 'checked' : ''} style="transform: scale(1.5); margin-right: 8px;">
+                Payment Received / Order Placed
+             </label>
+         </div>
+
+         <div style="padding:15px; background:var(--green-light); border-radius:12px;">
+            <div style="font-size:0.8rem;font-weight:600;margin-bottom:10px;">Order Items (Total: ₹${Number(o.total_amount||0).toLocaleString('en-IN')})</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">${itemChips}</div>
+         </div>
+       `;
+
+       document.getElementById('btn-mark-placed').style.display = o.is_placed ? 'none' : 'block';
+       document.getElementById('orderEditModal').classList.add('open');
+     };
+
+     window.markOrderPlaced = async function() {
+        document.getElementById('edit-order-is-placed').checked = true;
+        await saveOrderEdit();
+     };
+
+     window.saveOrderEdit = async function() {
+        if(!currentlyEditingOrderId) return;
+        const name = document.getElementById('edit-order-name').value.trim();
+        const phone = document.getElementById('edit-order-phone').value.trim();
+        const email = document.getElementById('edit-order-email').value.trim();
+        const address = document.getElementById('edit-order-address').value.trim();
+        const status = document.getElementById('edit-order-status').value;
+        const isPlaced = document.getElementById('edit-order-is-placed').checked;
+
+        const saveBtn = document.getElementById('saveOrderEditBtn');
+        saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving...';
+        try {
+          const { error } = await db.from('orders').update({
+            user_name: name,
+            phone: phone,
+            user_email: email,
+            shipping_address: address,
+            status: status,
+            is_placed: isPlaced
+          }).eq('id', currentlyEditingOrderId);
+          if (error) throw error;
+          toast('✅ Order details saved!');
+          document.getElementById('orderEditModal').classList.remove('open');
+          
+          // Modify cache immediately
+          const o = allOrdersCache.find(x => x.id === currentlyEditingOrderId);
+          if (o) {
+             o.user_name = name; o.phone = phone; o.user_email = email; o.shipping_address = address; o.status = status; o.is_placed = isPlaced;
+          }
+          
+          loadOrders(true);
+        } catch (err) {
+          toast('❌ Error saving order: ' + err.message, true);
+        } finally {
+          saveBtn.disabled = false; saveBtn.textContent = '💾 Save';
+        }
+     };
 
     window.filterOrders = function (status) {
       const filtered = status ? allOrdersCache.filter(o => o.status === status) : allOrdersCache;
