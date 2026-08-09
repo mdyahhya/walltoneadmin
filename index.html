@@ -2828,9 +2828,9 @@
       
       let filteredOrders;
       if (currentOrderTab === 'pending') {
-         filteredOrders = orders.filter(o => o.status === 'pending' && !o.is_placed);
+         filteredOrders = orders.filter(o => (o.status === 'pending' || !o.status) && !o.is_placed);
       } else {
-         filteredOrders = orders.filter(o => o.is_placed === true);
+         filteredOrders = orders.filter(o => o.status === 'paid' || o.status === 'confirmed' || o.status === 'delivered' || o.is_placed === true);
       }
       
       if (!filteredOrders || filteredOrders.length === 0) {
