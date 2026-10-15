@@ -745,6 +745,210 @@
       border-color: var(--green);
     }
 
+    /* PRODUCT ORDER MANAGEMENT */
+    .order-mgmt-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #F1F8E9;
+      border: 1px solid var(--green-mid);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 10px rgba(46, 125, 50, 0.05);
+    }
+
+    .order-mgmt-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .order-mgmt-title {
+      font-weight: 600;
+      font-size: 0.86rem;
+      color: var(--black);
+    }
+
+    .order-status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--white);
+      border: 1px solid var(--green-mid);
+      border-radius: 20px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--green-dark);
+    }
+
+    .unsaved-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #FFF3E0;
+      border: 1px solid #FFE082;
+      border-radius: 20px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #E65100;
+      animation: pulseUnsaved 1.5s infinite;
+    }
+
+    @keyframes pulseUnsaved {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.03); }
+    }
+
+    .order-mgmt-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-order-action {
+      padding: 8px 14px;
+      background: var(--white);
+      color: var(--green-dark);
+      border: 1.5px solid var(--green-mid);
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-order-action:hover {
+      background: var(--green-light);
+      border-color: var(--green);
+      transform: translateY(-1px);
+    }
+
+    .btn-save-order {
+      padding: 8px 18px;
+      background: var(--green);
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(46, 125, 50, 0.25);
+    }
+
+    .btn-save-order:hover {
+      background: var(--green-dark);
+      box-shadow: 0 5px 15px rgba(46, 125, 50, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-save-order.has-changes {
+      background: #2E7D32;
+      animation: pulseSaveBtn 1.8s infinite;
+    }
+
+    @keyframes pulseSaveBtn {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(46, 125, 50, 0); }
+    }
+
+    /* ORDER CELL & DRAG STYLING */
+    .order-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .drag-handle {
+      cursor: grab;
+      user-select: none;
+      font-size: 1.15rem;
+      color: #888;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .drag-handle:hover {
+      color: var(--green);
+      background: var(--green-light);
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .order-pos-badge {
+      display: inline-block;
+      min-width: 32px;
+      padding: 3px 8px;
+      background: var(--green-light);
+      color: var(--green-dark);
+      border: 1px solid var(--green-mid);
+      border-radius: 12px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .btn-order-top {
+      padding: 4px 10px;
+      background: #E8F5E9;
+      color: #1B5E20;
+      border: 1px solid #A5D6A7;
+      border-radius: 14px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .btn-order-top:hover {
+      background: var(--green);
+      color: var(--white);
+      transform: scale(1.05);
+    }
+
+    .prod-table tr.draggable-row {
+      cursor: default;
+      transition: background 0.2s;
+    }
+
+    .prod-table tr.draggable-row.dragging {
+      opacity: 0.45;
+      background: #E8F5E9 !important;
+    }
+
+    .prod-table tr.drag-over-top td {
+      border-top: 3px solid var(--green) !important;
+    }
+
+    .prod-table tr.drag-over-bottom td {
+      border-bottom: 3px solid var(--green) !important;
+    }
+
+    .prod-table tr.just-moved td {
+      animation: flashRow 1.4s ease;
+    }
+
+    @keyframes flashRow {
+      0% { background: #C8E6C9; }
+      100% { background: transparent; }
+    }
 
     /* BULK UPLOAD */
     .bulk-info-cards {
@@ -1628,6 +1832,29 @@
             </div>
           </div>
 
+          <!-- Product Order Management Toolbar -->
+          <div class="order-mgmt-bar" id="orderMgmtBar">
+            <div class="order-mgmt-info">
+              <span class="order-mgmt-title">🔄 Store Display Order:</span>
+              <span class="order-status-badge" id="orderStatusBadge">Order: 199 → 001 (Default)</span>
+              <span class="unsaved-badge" id="unsavedOrderBadge" style="display:none;">● Unsaved Changes</span>
+            </div>
+            <div class="order-mgmt-actions">
+              <button class="btn-order-action" onclick="applyReverseOrder()" title="Reverse order: highest product numbers first (e.g. 199 to 001)">
+                🔄 Reverse (199 → 001)
+              </button>
+              <button class="btn-order-action" onclick="promptStartNumberOrder()" title="Arrange starting from a specific product number downwards">
+                🔢 Start from #
+              </button>
+              <button class="btn-order-action" onclick="applyAscendingOrder()" title="Reset order: lowest product numbers first (001 to 199)">
+                ⬆️ 001 → 199
+              </button>
+              <button class="btn-save-order" id="btnSaveOrder" onclick="saveProductOrder()" title="Save current arrangement to live website">
+                💾 Save Order to Live Store
+              </button>
+            </div>
+          </div>
+
           <!-- Bulk Delete Bar -->
           <div class="bulk-delete-bar" id="bulkDeleteBar">
             <div style="font-size: 0.88rem; font-weight: 500;">
@@ -1641,11 +1868,12 @@
           </div>
 
           <div class="table-wrap">
-            <table class="prod-table">
+            <table class="prod-table" id="prodTable">
               <thead>
                 <tr>
                   <th class="checkbox-col" id="header-checkbox-col"><input type="checkbox" class="select-checkbox"
                       onclick="toggleAllCheckboxes(this)"></th>
+                  <th style="width: 140px; text-align: center;">Display Order</th>
                   <th>Image</th>
                   <th>Name</th>
                   <th>No.</th>
@@ -2415,13 +2643,279 @@
     };
 
     // ══════════════════════════════════════════════
+    // PRODUCT ORDER MANAGEMENT (DRAG & DROP, REVERSE, MOVE TO TOP)
+    // ══════════════════════════════════════════════
+    let hasUnsavedOrderChanges = false;
+    let draggedProductId = null;
+    let currentSavedOrderConfig = null;
+
+    function getProductNumberVal(productNo) {
+      if (!productNo) return 0;
+      const m = String(productNo).match(/\d+/);
+      return m ? parseInt(m[0], 10) : 0;
+    }
+
+    // Load saved custom order from Supabase storage (settings/product_order.json)
+    async function loadSavedProductOrder() {
+      try {
+        const url = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/settings/product_order.json?t=${Date.now()}`;
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const json = await res.json();
+        return json;
+      } catch (e) {
+        console.log('No custom order found or fetch error:', e);
+        return null;
+      }
+    }
+
+    function sortProductsByOrderConfig(products, config) {
+      if (!products || products.length === 0) return products;
+
+      if (config && Array.isArray(config.order_ids) && config.order_ids.length > 0) {
+        const idMap = new Map();
+        config.order_ids.forEach((id, idx) => idMap.set(id, idx));
+        const noMap = new Map();
+        if (Array.isArray(config.order_product_nos)) {
+          config.order_product_nos.forEach((no, idx) => noMap.set(no, idx));
+        }
+
+        return [...products].sort((a, b) => {
+          const idxA = idMap.has(a.id) ? idMap.get(a.id) : (noMap.has(a.product_no) ? noMap.get(a.product_no) : 999999);
+          const idxB = idMap.has(b.id) ? idMap.get(b.id) : (noMap.has(b.product_no) ? noMap.get(b.product_no) : 999999);
+          if (idxA !== idxB) return idxA - idxB;
+          // Tie-break / unlisted: descending numerical (199 -> 001)
+          return getProductNumberVal(b.product_no) - getProductNumberVal(a.product_no);
+        });
+      }
+
+      // Default order: Descending by product number (199 -> 001) as requested by user
+      return [...products].sort((a, b) => {
+        const numA = getProductNumberVal(a.product_no);
+        const numB = getProductNumberVal(b.product_no);
+        if (numB !== numA) return numB - numA;
+        return (b.product_no || '').localeCompare(a.product_no || '');
+      });
+    }
+
+    function markOrderChanged(statusText) {
+      hasUnsavedOrderChanges = true;
+      const unsavedBadge = document.getElementById('unsavedOrderBadge');
+      if (unsavedBadge) unsavedBadge.style.display = 'inline-block';
+      const saveBtn = document.getElementById('btnSaveOrder');
+      if (saveBtn) saveBtn.classList.add('has-changes');
+      const statusBadge = document.getElementById('orderStatusBadge');
+      if (statusBadge && statusText) statusBadge.textContent = statusText;
+    }
+
+    function markOrderSaved() {
+      hasUnsavedOrderChanges = false;
+      const unsavedBadge = document.getElementById('unsavedOrderBadge');
+      if (unsavedBadge) unsavedBadge.style.display = 'none';
+      const saveBtn = document.getElementById('btnSaveOrder');
+      if (saveBtn) saveBtn.classList.remove('has-changes');
+      const statusBadge = document.getElementById('orderStatusBadge');
+      if (statusBadge) statusBadge.textContent = 'Order: Saved to Live Store ✓';
+    }
+
+    window.applyReverseOrder = function () {
+      // Sorts descending (199 -> 001)
+      allProductsCache.sort((a, b) => {
+        const numA = getProductNumberVal(a.product_no);
+        const numB = getProductNumberVal(b.product_no);
+        if (numB !== numA) return numB - numA;
+        return (b.product_no || '').localeCompare(a.product_no || '');
+      });
+      markOrderChanged('Reverse (199 → 001)');
+      renderManageTable(allProductsCache);
+      toast('🔄 Order reversed: Highest numbers first (199 → 001)');
+    };
+
+    window.applyAscendingOrder = function () {
+      // Sorts ascending (001 -> 199)
+      allProductsCache.sort((a, b) => {
+        const numA = getProductNumberVal(a.product_no);
+        const numB = getProductNumberVal(b.product_no);
+        if (numA !== numB) return numA - numB;
+        return (a.product_no || '').localeCompare(b.product_no || '');
+      });
+      markOrderChanged('Ascending (001 → 199)');
+      renderManageTable(allProductsCache);
+      toast('⬆️ Order reset: Lowest numbers first (001 → 199)');
+    };
+
+    window.promptStartNumberOrder = function () {
+      const input = prompt('Enter starting product number (e.g. 199):', '199');
+      if (!input) return;
+      const targetNum = parseInt(input.trim().replace(/\D/g, ''), 10);
+      if (isNaN(targetNum)) {
+        toast('❌ Please enter a valid number.', true);
+        return;
+      }
+
+      // Products <= targetNum in descending order, then products > targetNum in descending order
+      allProductsCache.sort((a, b) => {
+        const numA = getProductNumberVal(a.product_no);
+        const numB = getProductNumberVal(b.product_no);
+
+        const inFirstGroupA = numA <= targetNum;
+        const inFirstGroupB = numB <= targetNum;
+
+        if (inFirstGroupA && !inFirstGroupB) return -1;
+        if (!inFirstGroupA && inFirstGroupB) return 1;
+
+        return numB - numA;
+      });
+
+      markOrderChanged(`Starting from #${targetNum} Downwards`);
+      renderManageTable(allProductsCache);
+      toast(`🔢 Arranged starting from #${targetNum} downwards.`);
+    };
+
+    window.moveProductToTop = function (id) {
+      const idx = allProductsCache.findIndex(p => p.id === id);
+      if (idx <= 0) return; // already at top or not found
+
+      const [item] = allProductsCache.splice(idx, 1);
+      allProductsCache.unshift(item);
+
+      markOrderChanged(`Custom Order (Moved #${item.product_no} to top)`);
+      renderManageTable(allProductsCache);
+
+      // Flash the top row
+      setTimeout(() => {
+        const firstRow = document.querySelector('#manage-body tr');
+        if (firstRow) firstRow.classList.add('just-moved');
+      }, 50);
+
+      toast(`⬆️ "${item.name}" moved to top of store!`);
+    };
+
+    // Drag and drop handlers
+    window.handleRowDragStart = function (e, id) {
+      draggedProductId = id;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', id);
+      const row = e.currentTarget;
+      setTimeout(() => row.classList.add('dragging'), 0);
+    };
+
+    window.handleRowDragOver = function (e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const row = e.currentTarget;
+      const rect = row.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) {
+        row.classList.add('drag-over-top');
+        row.classList.remove('drag-over-bottom');
+      } else {
+        row.classList.add('drag-over-bottom');
+        row.classList.remove('drag-over-top');
+      }
+    };
+
+    window.handleRowDragLeave = function (e) {
+      const row = e.currentTarget;
+      row.classList.remove('drag-over-top', 'drag-over-bottom');
+    };
+
+    window.handleRowDragEnd = function (e) {
+      document.querySelectorAll('#manage-body tr').forEach(r => {
+        r.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+      });
+      draggedProductId = null;
+    };
+
+    window.handleRowDrop = function (e, targetId) {
+      e.preventDefault();
+      const row = e.currentTarget;
+      const rect = row.getBoundingClientRect();
+      const insertBefore = e.clientY < (rect.top + rect.height / 2);
+
+      row.classList.remove('drag-over-top', 'drag-over-bottom');
+
+      if (!draggedProductId || draggedProductId === targetId) return;
+
+      const fromIndex = allProductsCache.findIndex(p => p.id === draggedProductId);
+      let toIndex = allProductsCache.findIndex(p => p.id === targetId);
+
+      if (fromIndex === -1 || toIndex === -1) return;
+
+      const [movedItem] = allProductsCache.splice(fromIndex, 1);
+      toIndex = allProductsCache.findIndex(p => p.id === targetId);
+      if (!insertBefore) toIndex += 1;
+
+      allProductsCache.splice(toIndex, 0, movedItem);
+
+      markOrderChanged(`Custom Order (Reordered)`);
+      renderManageTable(allProductsCache);
+      toast(`⠿ Reordered: "${movedItem.name}" moved to position #${toIndex + 1}`);
+    };
+
+    // Save product order to Supabase storage
+    window.saveProductOrder = async function () {
+      const saveBtn = document.getElementById('btnSaveOrder');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '⏳ Saving Order...';
+
+      try {
+        const orderData = {
+          version: 1,
+          updated_at: new Date().toISOString(),
+          order_ids: allProductsCache.map(p => p.id),
+          order_product_nos: allProductsCache.map(p => p.product_no),
+          category_orders: {
+            wall_art: allProductsCache.filter(p => p.category === 'wall_art').map(p => p.id),
+            wall_clock: allProductsCache.filter(p => p.category === 'wall_clock').map(p => p.id),
+            wall_mirror: allProductsCache.filter(p => p.category === 'wall_mirror').map(p => p.id)
+          }
+        };
+
+        const jsonStr = JSON.stringify(orderData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+
+        const { error } = await db.storage
+          .from(BUCKET)
+          .upload('settings/product_order.json', blob, { cacheControl: '0', upsert: true });
+
+        if (error) throw error;
+
+        markOrderSaved();
+        toast('✅ Product order saved to live website successfully!');
+      } catch (err) {
+        console.error('Save order failed:', err);
+        toast('❌ Failed to save product order: ' + err.message, true);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '💾 Save Order to Live Store';
+      }
+    };
+
+    // ══════════════════════════════════════════════
     // LOAD ALL PRODUCTS
     // ══════════════════════════════════════════════
     async function loadAllProducts() {
       try {
-        const { data, error } = await db.from('products').select('*').order('created_at', { ascending: false });
+        const { data, error } = await db.from('products').select('*');
         if (error) throw error;
-        allProductsCache = data || [];
+        const fetched = data || [];
+
+        // Fetch saved custom order from storage
+        const savedOrder = await loadSavedProductOrder();
+        currentSavedOrderConfig = savedOrder;
+
+        allProductsCache = sortProductsByOrderConfig(fetched, savedOrder);
+
+        if (savedOrder && savedOrder.order_ids && savedOrder.order_ids.length > 0) {
+          const statusBadge = document.getElementById('orderStatusBadge');
+          if (statusBadge) statusBadge.textContent = 'Order: Custom Saved Order ✓';
+        } else {
+          const statusBadge = document.getElementById('orderStatusBadge');
+          if (statusBadge) statusBadge.textContent = 'Order: 199 → 001 (Default)';
+        }
+
         updateDashboard();
         renderManageTable(allProductsCache);
       } catch (err) {
@@ -2525,13 +3019,29 @@
     function renderManageTable(products) {
       const tbody = document.getElementById('manage-body');
       if (!products || products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">No products found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">No products found.</td></tr>`;
         return;
       }
-      tbody.innerHTML = products.map(p => `
-      <tr data-cat="${p.category}" data-name="${p.name.toLowerCase()}">
+      tbody.innerHTML = products.map((p, idx) => `
+      <tr class="draggable-row" 
+          data-id="${p.id}"
+          data-cat="${p.category}" 
+          data-name="${p.name.toLowerCase()}"
+          draggable="true"
+          ondragstart="handleRowDragStart(event, '${p.id}')"
+          ondragover="handleRowDragOver(event)"
+          ondragleave="handleRowDragLeave(event)"
+          ondrop="handleRowDrop(event, '${p.id}')"
+          ondragend="handleRowDragEnd(event)">
         <td class="checkbox-col ${isSelectMode ? 'show' : ''}">
           <input type="checkbox" class="select-checkbox row-checkbox" data-id="${p.id}" onchange="handleRowCheckbox(this)" ${selectedProductIds.has(p.id) ? 'checked' : ''}>
+        </td>
+        <td style="text-align: center;">
+          <div class="order-cell">
+            <span class="drag-handle" title="Drag to reorder row">⠿</span>
+            <span class="order-pos-badge" title="Store display position">#${idx + 1}</span>
+            <button class="btn-order-top" onclick="event.stopPropagation(); moveProductToTop('${p.id}')" title="Move product directly to top of store">⬆️ Top</button>
+          </div>
         </td>
         <td><img class="tbl-img" src="${p.image_url}" onerror="this.src='https://via.placeholder.com/52'" alt=""></td>
         <td><strong>${p.name}</strong></td>
