@@ -3333,6 +3333,49 @@
       }
     }
 
+    function getWhatsAppLinks(o) {
+      const pNum = (o.phone || '').replace(/\D/g, '');
+      const formattedPhone = pNum.length === 10 ? '91' + pNum : pNum;
+      const items = Array.isArray(o.items) ? o.items : [];
+      const firstItem = items.length > 0 ? items[0] : {};
+      const isTest = Number(o.total_amount) === 1 || items.some(i => i.id === 'test-product-1inr' || (i.name && i.name.toLowerCase().includes('test')));
+      const itemName = firstItem.name || firstItem.product_no || (isTest ? '₹1 Test Order Verification' : 'Walltone Metal Art');
+      const itemImage = firstItem.image_url || 'https://walltone.in/walltone.png';
+      const amount = Number(o.total_amount || 0).toLocaleString('en-IN');
+      const customerName = (o.user_name || '').trim() || 'Sir/Ma\'am';
+      const isPending = (o.status === 'pending' || !o.status) && !o.is_placed;
+
+      let rawEn = '', rawHi = '', rawMr = '';
+
+      if (isTest) {
+        if (isPending) {
+          rawEn = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nHello ${customerName}! 👋\n\nWe noticed you started the *₹1 Test Payment verification* on our website *walltone.in*, but your payment is currently pending.\n\nDid you face any issue or difficulty during checkout? It takes just 10 seconds to verify our live order system and experience our premium service before buying real art! 🤝\n\n💳 You can also pay ₹1 directly via UPI:\nUPI ID: *shoaib.maindargi.09@okaxis*\nand share the screenshot here.\n\nOur team is right here to assist you!\n\nWarm regards,\n*Walltone Decors Support Team* 🎨`;
+          rawHi = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nNamaste ${customerName}! 🙏\n\nAapne hamari website *walltone.in* par *₹1 Test Payment verification* start kiya tha, par payment abhi pending hai.\n\nKya checkout ya payment karte waqt koi dikkat aayi? Yeh sirf 10 second ka verification test hai taaki aap hamari service aur instant checkout par 100% bharosa kar sakein! 🤝\n\n💳 Aap seedhe is UPI par ₹1 pay kar sakte hain:\nUPI ID: *shoaib.maindargi.09@okaxis*\naur screenshot yahan bhej dijiye.\n\nDhanyawad,\n*Walltone Decors Team* 🎨`;
+          rawMr = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nनमस्कार ${customerName}! 🙏\n\nआपण *walltone.in* या आमच्या वेबसाईटवर *₹1 टेस्ट पेमेंट व्हेरिफिकेशन* सुरू केले होते, पण पेमेंट अजून पेंडिंग आहे.\n\nपेमेंट किंवा ऑर्डर करताना आपल्याला काही अडचण आली का? हे फक्त 10 सेकंदांचे व्हेरिफिकेशन आहे, जेणेकरून आपल्याला आमच्या सेवेवर पूर्ण विश्वास वाटेल! 🤝\n\n💳 आपण थेट या UPI आयडीवर ₹1 पाठवू शकता:\nUPI ID: *shoaib.maindargi.09@okaxis*\nआणि स्क्रीनशॉट येथे व्हॉट्सॲपवर पाठवा.\n\nधन्यवाद,\n*वॉलटोन डेकॉर्स टीम* 🎨`;
+        } else {
+          rawEn = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nHello ${customerName}! 👋\n\nThank you for verifying your test payment on *walltone.in*! 🎉\nYour *₹1 Test Payment* was successful and your connection with Walltone is verified.\n\nYou can now browse and order from our 360+ handcrafted metal wall arts with total trust and free shipping across India! 🚚✨\n\nWarm regards,\n*Walltone Decors Team* 🎨`;
+          rawHi = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nNamaste ${customerName}! 🙏\n\nWalltone.in par aapka *₹1 Test Payment* safal raha aur verified ho gaya hai! 🎉\n\nAb aap bejhijhak hamare 360+ handcrafted metal wall arts explore kar sakte hain aur 100% vishwas ke saath order kar sakte hain! 🚚✨\n\nDhanyawad,\n*Walltone Decors Team* 🎨`;
+          rawMr = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nनमस्कार ${customerName}! 🙏\n\nWalltone.in वर आपले *₹1 टेस्ट पेमेंट* यशस्वी झाले आहे आणि व्हेरिफाय झाले आहे! 🎉\n\nआता आपण आमचे 360+ हँडक्राफ्टेड मेटल वॉल आर्ट्स विश्वासाने पाहू शकता आणि ऑर्डर करू शकता! 🚚✨\n\nधन्यवाद,\n*वॉलटोन डेकॉर्स टीम* 🎨`;
+        }
+      } else {
+        if (isPending) {
+          rawEn = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nHello ${customerName}! 👋\n\nYou recently started an order for *${itemName}* (₹${amount}) on our website *walltone.in*, but your payment is currently pending.\n\nMay we know if you faced any issue or difficulty during checkout? We're right here to assist you and ensure a smooth experience! 🤝\n\n💳 If you would like to complete your order or pay via UPI, you can transfer to:\nUPI ID: *shoaib.maindargi.09@okaxis*\nand share the screenshot here.\n\nProduct: ${itemName}\nAmount: ₹${amount}\nLink: ${itemImage}\n\nWarm regards,\n*Walltone Decors Support Team* 🎨`;
+          rawHi = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nNamaste ${customerName}! 🙏\n\nAapne hamari website *walltone.in* par *${itemName}* (₹${amount}) ka order start kiya tha, par aapka payment abhi pending hai.\n\nKya order ya payment karte samay aapko koi pareshani aayi? Hum aapki poori madad karne ke liye yahin hain! 🤝\n\n💳 Agar aap UPI se payment karna chahte hain, toh aap seedhe is UPI ID par pay kar sakte hain:\nUPI ID: *shoaib.maindargi.09@okaxis*\naur screenshot yahan WhatsApp par bhej dijiye. Hum turant aapka order confirm kar denge!\n\nProduct: ${itemName}\nAmount: ₹${amount}\nLink: ${itemImage}\n\nDhanyawad,\n*Walltone Decors Team* 🎨`;
+          rawMr = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nनमस्कार ${customerName}! 🙏\n\nआपण *walltone.in* या आमच्या वेबसाईटवर *${itemName}* (₹${amount}) ची ऑर्डर सुरू केली होती, पण आपले पेमेंट अजून पेंडिंग आहे.\n\nऑर्डर किंवा पेमेंट करताना आपल्याला काही अडचण आली का? आम्ही आपल्या मदतीसाठी सदैव तयार आहोत! 🤝\n\n💳 आपणास UPI द्वारे पेमेंट करायचे असल्यास, आपण थेट या UPI आयडीवर पेमेंट करू शकता:\nUPI ID: *shoaib.maindargi.09@okaxis*\nआणि स्क्रीनशॉट येथे व्हॉट्सॲपवर पाठवा. आम्ही लगेच आपली ऑर्डर कन्फर्म करू!\n\nProduct: ${itemName}\nAmount: ₹${amount}\nLink: ${itemImage}\n\nधन्यवाद,\n*वॉलटोन डेकॉर्स टीम* 🎨`;
+        } else {
+          rawEn = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nHello ${customerName}! 👋\n\nThank you for your order on *walltone.in*! 🎉\nWe have received your order for *${itemName}* (₹${amount}).\n\nOrder ID: #${(o.id || '').slice(0, 8).toUpperCase()}\nDelivery Address: ${o.shipping_address || 'Provided in order'}\n\nOur artisans are preparing your metal wall art for dispatch. We will send you tracking updates as soon as it is shipped! 🚚📦\n\nWarm regards,\n*Walltone Decors Team* 🎨`;
+          rawHi = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nNamaste ${customerName}! 🙏\n\nWalltone.in par aapka order place karne ke liye dhanyawad! 🎉\nHumein aapka order *${itemName}* (₹${amount}) ke liye mil gaya hai.\n\nOrder ID: #${(o.id || '').slice(0, 8).toUpperCase()}\nAddress: ${o.shipping_address || 'Provided in order'}\n\nHamari team aapke metal art ko packaging ke liye prepare kar rahi hai. Dispatch hote hi tracking details yahan share kar di jayengi! 🚚📦\n\nDhanyawad,\n*Walltone Decors Team* 🎨`;
+          rawMr = `🌿 *Greetings from Walltone!* ✨\n────────────────────\n\nनमस्कार ${customerName}! 🙏\n\nWalltone.in वर ऑर्डर दिल्याबद्दल मनःपूर्वक धन्यवाद! 🎉\nआम्हाला *${itemName}* (₹${amount}) ची ऑर्डर प्राप्त झाली आहे.\n\nOrder ID: #${(o.id || '').slice(0, 8).toUpperCase()}\nपत्ता: ${o.shipping_address || 'Provided in order'}\n\nआमची टीम आपल्या मेटल वॉल आर्टचे पॅकिंग सुरू करत आहे. डिस्पॅच होताच ट्रॅकिंग डिटेल्स येथे पाठवण्यात येतील! 🚚📦\n\nधन्यवाद,\n*वॉलटोन डेकॉर्स टीम* 🎨`;
+        }
+      }
+
+      return {
+        waLinkEn: `https://wa.me/${formattedPhone}?text=${encodeURIComponent(rawEn)}`,
+        waLinkHi: `https://wa.me/${formattedPhone}?text=${encodeURIComponent(rawHi)}`,
+        waLinkMr: `https://wa.me/${formattedPhone}?text=${encodeURIComponent(rawMr)}`
+      };
+    }
+
     function renderOrdersTable(orders) {
       const tbody = document.getElementById('orders-body');
       
@@ -3351,26 +3394,30 @@
       tbody.innerHTML = filteredOrders.map(o => {
         const date = new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         const items = Array.isArray(o.items) ? o.items : [];
+        const isTest = Number(o.total_amount) === 1 || items.some(i => i.id === 'test-product-1inr' || (i.name && i.name.toLowerCase().includes('test')));
+        const isPending = (o.status === 'pending' || !o.status) && !o.is_placed;
+
         const itemsSummary = items.length > 0
-          ? `${items[0].name || items[0].product_no || 'Item'}${items.length > 1 ? ' +' + (items.length - 1) + ' more' : ''}`
-          : '—';
-        const statusClass = 'status-' + (o.status || 'pending');
+          ? `${items[0].name || items[0].product_no || (isTest ? '₹1 Test Verification' : 'Item')}${items.length > 1 ? ' +' + (items.length - 1) + ' more' : ''}`
+          : (isTest ? '₹1 Test Verification' : '—');
         
-        const pNum = (o.phone || '').replace(/\D/g, '');
-        const formattedPhone = pNum.length === 10 ? '91' + pNum : pNum;
-        const firstItem = items.length > 0 ? items[0] : {};
-        const itemName = firstItem.name || firstItem.product_no || 'Product';
-        const itemImage = firstItem.image_url || 'No Image Available';
+        let statusBadgeHtml = '';
+        if (isTest) {
+          if (isPending) {
+            statusBadgeHtml = `<span class="order-status" style="background:#FFF8E1;color:#F57F17;border:1.5px solid #FFE082;font-weight:700;padding:4px 10px;border-radius:20px;font-size:0.75rem;display:inline-flex;align-items:center;gap:4px;">🧪 ₹1 TEST • STARTED (PENDING)</span>`;
+          } else {
+            statusBadgeHtml = `<span class="order-status" style="background:#E8F5E9;color:#1B5E20;border:1.5px solid #A5D6A7;font-weight:700;padding:4px 10px;border-radius:20px;font-size:0.75rem;display:inline-flex;align-items:center;gap:4px;">🎉 ₹1 TEST • PAID & VERIFIED</span>`;
+          }
+        } else {
+          if (isPending) {
+            statusBadgeHtml = `<span class="order-status" style="background:#FFF3E0;color:#E65100;border:1.5px solid #FFCC80;font-weight:700;padding:4px 10px;border-radius:20px;font-size:0.75rem;display:inline-flex;align-items:center;gap:4px;">⏳ STARTED ORDER (PAYMENT PENDING)</span>`;
+          } else {
+            statusBadgeHtml = `<span class="order-status" style="background:#E8F5E9;color:#1B5E20;border:1.5px solid #A5D6A7;font-weight:700;padding:4px 10px;border-radius:20px;font-size:0.75rem;display:inline-flex;align-items:center;gap:4px;">✅ ORDER PLACED (PAID)</span>`;
+          }
+        }
+
         const amount = Number(o.total_amount || 0).toLocaleString('en-IN');
-        
-        const msgEn = encodeURIComponent(`Sir you have ordered ${itemName} from our site walltone.in and you make ₹${amount} payment to this UPI @shoaib.maindargi.09@okaxis and send screenshot here on whatsapp and your order will be confirmed.\n\nProduct Image Link:\n${itemImage}`);
-        const waLinkEn = `https://wa.me/${formattedPhone}?text=${msgEn}`;
-        
-        const msgHi = encodeURIComponent(`Sir aapne hamari site walltone.in se ${itemName} order kiya hai, is UPI id @shoaib.maindargi.09@okaxis par ₹${amount} ka payment kijiye aur screenshot yahan whatsapp par bhej dijiye, aapka order confirm ho jayega.\n\nProduct Image Link:\n${itemImage}`);
-        const waLinkHi = `https://wa.me/${formattedPhone}?text=${msgHi}`;
-        
-        const msgMr = encodeURIComponent(`सर, तुम्ही आमच्या walltone.in या साईटवरून ${itemName} ची ऑर्डर दिली आहे. कृपया @shoaib.maindargi.09@okaxis या UPI वर ₹${amount} चे पेमेंट करा आणि स्क्रीनशॉट इथे व्हॉट्सॲपवर पाठवा. त्यानंतर तुमची ऑर्डर कन्फर्म होईल.\n\nProduct Image Link:\n${itemImage}`);
-        const waLinkMr = `https://wa.me/${formattedPhone}?text=${msgMr}`;
+        const { waLinkEn, waLinkHi, waLinkMr } = getWhatsAppLinks(o);
 
         return `
           <tr style="cursor:pointer" onclick="openOrderEditModal('${o.id}')">
@@ -3382,19 +3429,25 @@
                 <button onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" style="display: flex; align-items: center; justify-content: center; background: #25D366; border: none; border-radius: 50%; min-width: 32px; height: 32px; cursor: pointer; transition: transform 0.2s;" title="Send WhatsApp Message" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.571-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
                 </button>
-                <div id="wa-menu-tbl-${o.id}" class="wa-menu-content" style="display: none; position: absolute; left: 40px; top: -50%; min-width: 150px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 9999; border: 1px solid var(--green-light); overflow: hidden;">
-                  <a href="${waLinkEn}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">English</a>
-                  <a href="${waLinkHi}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Hindi (Hinglish)</a>
-                  <a href="${waLinkMr}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Marathi</a>
+                <div id="wa-menu-tbl-${o.id}" class="wa-menu-content" style="display: none; position: absolute; left: 40px; top: -50%; min-width: 170px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 9999; border: 1px solid var(--green-light); overflow: hidden;">
+                  <a href="${waLinkEn}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">🇬🇧 English</a>
+                  <a href="${waLinkHi}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">🇮🇳 Hindi (Hinglish)</a>
+                  <a href="${waLinkMr}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block;" onclick="toggleWaMenu('wa-menu-tbl-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">🇮🇳 Marathi</a>
                 </div>
               </div>
             </td>
             <td style="font-size:0.78rem;white-space:nowrap">${date}</td>
-            <td><strong>${o.user_name || '—'}</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">${o.user_email || ''}</span></td>
-            <td>${o.phone || '—'}</td>
+            <td>
+              <strong>${o.user_name || '—'}</strong>
+              <br>
+              <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:2px;">
+                📍 ${o.shipping_address ? o.shipping_address + (o.pincode ? ' (PIN: ' + o.pincode + ')' : '') : (o.user_email || 'No address')}
+              </span>
+            </td>
+            <td><strong>${o.phone || '—'}</strong></td>
             <td style="font-size:0.82rem">${itemsSummary}</td>
             <td><strong>₹${amount}</strong></td>
-            <td><span class="order-status ${statusClass}">${(o.status || 'pending').toUpperCase()} ${o.is_placed ? ' (PAID)' : ''}</span></td>
+            <td>${statusBadgeHtml}</td>
           </tr>`;
       }).join('');
     }
@@ -3414,19 +3467,7 @@
            </div>
          </div>`).join('');
 
-       const pNum = (o.phone || '').replace(/\D/g, '');
-       const formattedPhone = pNum.length === 10 ? '91' + pNum : pNum;
-       const firstItem = items.length > 0 ? items[0] : {};
-       const itemName = firstItem.name || firstItem.product_no || 'Product';
-       const itemImage = firstItem.image_url || 'No Image Available';
-       const amount = Number(o.total_amount || 0).toLocaleString('en-IN');
-       
-       const msgEn = encodeURIComponent(`Sir you have ordered ${itemName} from our site walltone.in and you make ₹${amount} payment to this UPI @shoaib.maindargi.09@okaxis and send screenshot here on whatsapp and your order will be confirmed.\n\nProduct Image Link:\n${itemImage}`);
-       const waLinkEn = `https://wa.me/${formattedPhone}?text=${msgEn}`;
-       const msgHi = encodeURIComponent(`Sir aapne hamari site walltone.in se ${itemName} order kiya hai, is UPI id @shoaib.maindargi.09@okaxis par ₹${amount} ka payment kijiye aur screenshot yahan whatsapp par bhej dijiye, aapka order confirm ho jayega.\n\nProduct Image Link:\n${itemImage}`);
-       const waLinkHi = `https://wa.me/${formattedPhone}?text=${msgHi}`;
-       const msgMr = encodeURIComponent(`सर, तुम्ही आमच्या walltone.in या साईटवरून ${itemName} ची ऑर्डर दिली आहे. कृपया @shoaib.maindargi.09@okaxis या UPI वर ₹${amount} चे पेमेंट करा आणि स्क्रीनशॉट इथे व्हॉट्सॲपवर पाठवा. त्यानंतर तुमची ऑर्डर कन्फर्म होईल.\n\nProduct Image Link:\n${itemImage}`);
-       const waLinkMr = `https://wa.me/${formattedPhone}?text=${msgMr}`;
+       const { waLinkEn, waLinkHi, waLinkMr } = getWhatsAppLinks(o);
 
        document.getElementById('orderEditContent').innerHTML = `
          <div style="display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap;">
@@ -3443,10 +3484,10 @@
                  <button onclick="toggleWaMenu('wa-menu-modal-${o.id}')" style="display: flex; align-items: center; justify-content: center; background: #25D366; border: none; border-radius: 8px; min-width: 42px; height: 42px; cursor: pointer; transition: transform 0.2s;" title="Send WhatsApp Message" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                    <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.8 5.8 0 0 0-.571-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
                  </button>
-                 <div id="wa-menu-modal-${o.id}" class="wa-menu-content" style="display: none; position: absolute; right: 50px; top: 0; min-width: 150px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 9999; border: 1px solid var(--green-light); overflow: hidden;">
-                   <a href="${waLinkEn}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">English</a>
-                   <a href="${waLinkHi}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Hindi (Hinglish)</a>
-                   <a href="${waLinkMr}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">Marathi</a>
+                 <div id="wa-menu-modal-${o.id}" class="wa-menu-content" style="display: none; position: absolute; right: 50px; top: 0; min-width: 170px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 9999; border: 1px solid var(--green-light); overflow: hidden;">
+                   <a href="${waLinkEn}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">🇬🇧 English</a>
+                   <a href="${waLinkHi}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block; border-bottom: 1px solid #f1f1f1;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">🇮🇳 Hindi (Hinglish)</a>
+                   <a href="${waLinkMr}" target="_blank" style="color: var(--black); font-size: 0.8rem; padding: 10px 15px; text-decoration: none; display: block;" onclick="toggleWaMenu('wa-menu-modal-${o.id}')" onmouseover="this.style.background='var(--green-light)'" onmouseout="this.style.background='transparent'">🇮🇳 Marathi</a>
                  </div>
                </div>
 
